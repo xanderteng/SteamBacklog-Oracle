@@ -13,7 +13,7 @@ public class SteamApiClient {
     private final RestClient restClient;
     private final SteamApiProperties properties;
 
-    public SteamApiClient(RestClient steamRestClient, SteamApiProperties properties) {
+    public SteamApiClient(@org.springframework.beans.factory.annotation.Qualifier("steamRestClient") RestClient steamRestClient, SteamApiProperties properties) {
         this.restClient = steamRestClient;
         this.properties = properties;
     }

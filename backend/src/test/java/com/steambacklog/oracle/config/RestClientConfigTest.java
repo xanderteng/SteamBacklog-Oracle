@@ -18,4 +18,16 @@ class RestClientConfigTest {
 
         assertNotNull(restClient);
     }
+
+    @Test
+    void testGeminiRestClientCreation() {
+        GeminiApiProperties properties = new GeminiApiProperties();
+        properties.setBaseUrl("https://generativelanguage.googleapis.com");
+        properties.setKey("test-gemini-key");
+
+        RestClientConfig config = new RestClientConfig();
+        RestClient restClient = config.geminiRestClient(properties);
+
+        assertNotNull(restClient);
+    }
 }

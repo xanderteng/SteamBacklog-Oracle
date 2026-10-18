@@ -24,3 +24,8 @@ steam:
   api:
     base-url: https://api.steampowered.com
     key: dummy-test-key
+
+gemini:
+  api:
+    base-url: https://generativelanguage.googleapis.com
+    key: dummy-test-key
