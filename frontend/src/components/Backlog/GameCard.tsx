@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Clock, Gamepad2, PlayCircle, ShieldAlert } from 'lucide-react';
+import { Clock, Gamepad2 } from 'lucide-react';
 import { SteamGameResponse } from '../../types/steam';
-import { CornerBrackets } from '../Common/CornerBrackets';
 
 interface GameCardProps {
   game: SteamGameResponse;
@@ -12,7 +11,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
 
   const isUntouched = game.playtimeForeverMinutes === 0;
   const capsuleUrl = `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${game.appId}/header.jpg`;
-  
+
   // Segmented progress bar (12 segments representing 10 mins each up to 120 threshold)
   const segmentsCount = 12;
   const activeSegments = Math.min(
@@ -23,29 +22,10 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   return (
     <article
       data-testid={`game-card-${game.appId}`}
-      className="group relative flex flex-col bg-obsidian-900/90 border border-slate-700/60 hover:border-neon-cyan/60 rounded-sm overflow-hidden transition-all duration-300 hover:shadow-glow-cyan hover:-translate-y-0.5"
+      className="group relative flex flex-col bg-[#1c1917] border border-[#38312b] hover:border-[#b45309] rounded-sm overflow-hidden transition-all duration-300 shadow-tactile-card hover:shadow-tactile-raised hover:-translate-y-1"
     >
-      <CornerBrackets accentColor="text-neon-cyan/40 group-hover:text-neon-cyan" />
-
-      {/* Top Telemetry Strip */}
-      <div className="flex items-center justify-between px-3 py-1.5 bg-obsidian-950/80 border-b border-slate-800 text-[10px] font-mono">
-        <span className="text-slate-400 tracking-wider">
-          APP_ID <span className="text-neon-cyan font-bold">// #{game.appId}</span>
-        </span>
-
-        {isUntouched ? (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-neon-amber/15 text-neon-amber border border-neon-amber/30 uppercase tracking-widest font-semibold text-[9px]">
-            <ShieldAlert className="w-2.5 h-2.5" /> UNTOUCHED
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-neon-indigo/15 text-neon-indigo border border-neon-indigo/30 uppercase tracking-widest font-semibold text-[9px]">
-            <PlayCircle className="w-2.5 h-2.5" /> IN PROGRESS
-          </span>
-        )}
-      </div>
-
-      {/* Capsule Artwork with Angled Vignette Overlay & Fallback */}
-      <div className="relative aspect-[460/215] w-full bg-obsidian-950 overflow-hidden">
+      {/* Full-Bleed Capsule Artwork with Gradient Melt into Card Body */}
+      <div className="relative aspect-[460/215] w-full bg-[#141210] overflow-hidden">
         {!imageError ? (
           <img
             src={capsuleUrl}
@@ -57,58 +37,78 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
         ) : (
           <div
             data-testid="game-fallback-art"
-            className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-obsidian-900 to-obsidian-950 border-b border-slate-800 text-center"
+            className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-[#24201d] to-[#141210] text-center"
           >
-            <Gamepad2 className="w-10 h-10 text-slate-600 mb-2 group-hover:text-neon-cyan transition-colors" />
-            <span className="font-display font-bold text-xs text-slate-400 uppercase tracking-wider line-clamp-1">
+            <Gamepad2 className="w-10 h-10 text-stone-500 mb-2 group-hover:text-[#f59e0b] transition-colors" />
+            <span className="font-serif font-bold text-xs text-stone-300 line-clamp-1">
               {game.name}
             </span>
           </div>
         )}
 
-        {/* Angled Vignette Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-obsidian-900 via-transparent to-black/30 pointer-events-none" />
+        {/* Gradient Melt into Matte Body */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1c1917] via-transparent to-black/40 pointer-events-none" />
+
+        {/* Top Floating App ID Badge */}
+        <div className="absolute top-2.5 left-2.5">
+          <span className="font-sans text-[11px] font-semibold text-stone-300 bg-[#141210]/85 backdrop-blur-md px-2 py-0.5 rounded-sm border border-[#38312b] shadow-tactile-recessed">
+            #{game.appId}
+          </span>
+        </div>
+
+        {/* Top Floating Embossed Pill Badge */}
+        <div className="absolute top-2.5 right-2.5">
+          {isUntouched ? (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#7f1d1d]/90 text-[#fca5a5] border border-[#991b1b] shadow-tactile-button text-[11px] font-sans font-semibold tracking-wide backdrop-blur-md">
+              Untouched
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#78350f]/90 text-[#fde68a] border border-[#b45309] shadow-tactile-button text-[11px] font-sans font-semibold tracking-wide backdrop-blur-md">
+              In Progress
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Content Body */}
-      <div className="flex-1 p-3.5 flex flex-col justify-between">
+      <div className="flex-1 p-4 flex flex-col justify-between">
         <div className="mb-3">
           <h3
             title={game.name}
-            className="font-display font-bold text-base sm:text-lg text-slate-100 group-hover:text-neon-cyan transition-colors line-clamp-1 tracking-wide"
+            className="font-serif font-bold text-lg text-stone-100 group-hover:text-[#f59e0b] transition-colors line-clamp-1 tracking-wide"
           >
             {game.name}
           </h3>
         </div>
 
-        {/* Playtime Telemetry & Segmented Progress Bar */}
+        {/* Playtime Progress & Physical Recessed Trough */}
         <div>
-          <div className="flex items-center justify-between font-mono text-[11px] text-slate-400 mb-1.5">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-slate-500" /> Playtime:
+          <div className="flex items-center justify-between font-sans text-xs text-stone-400 mb-1.5">
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-stone-500" /> Playtime:
             </span>
-            <span className="text-slate-200 font-bold">
-              {game.playtimeForeverMinutes} <span className="text-[10px] text-slate-500">/ 120m</span>
+            <span className="text-stone-200 font-semibold">
+              {game.playtimeForeverMinutes} <span className="text-stone-500 font-normal">/ 120m</span>
             </span>
           </div>
 
-          {/* 12-Segment Playtime Bar */}
+          {/* Physical Recessed Progress Trough */}
           <div
             data-testid="segmented-progress-bar"
             aria-label={`Playtime ${game.playtimeForeverMinutes} of 120 minutes`}
-            className="grid grid-cols-12 gap-0.5 h-1.5 w-full bg-obsidian-950 p-0.5 rounded-sm border border-slate-800"
+            className="grid grid-cols-12 gap-0.5 h-2 w-full bg-[#12100e] p-0.5 rounded-full border border-[#2e2823] shadow-tactile-recessed"
           >
             {Array.from({ length: segmentsCount }).map((_, index) => {
               const isActive = index < activeSegments;
               return (
                 <div
                   key={index}
-                  className={`h-full rounded-px transition-colors ${
+                  className={`h-full rounded-full transition-colors ${
                     isActive
                       ? isUntouched
-                        ? 'bg-neon-amber'
-                        : 'bg-neon-cyan'
-                      : 'bg-slate-800/80'
+                        ? 'bg-[#c2410c]'
+                        : 'bg-[#d97706]'
+                      : 'bg-[#29231e]'
                   }`}
                 />
               );
@@ -117,10 +117,10 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
         </div>
       </div>
 
-      {/* Embossed Footer */}
-      <div className="px-3 py-1 bg-obsidian-950/90 border-t border-slate-800/60 flex items-center justify-between text-[9px] font-mono text-slate-500">
-        <span>STATUS: SYNCHRONIZED</span>
-        <span className="text-neon-cyan/70 font-semibold">BACKLOG ELIGIBLE</span>
+      {/* Embossed Stoneware Footer Plaque */}
+      <div className="px-4 py-2 bg-[#171412] border-t border-[#2e2823] flex items-center justify-between text-[11px] font-sans text-stone-400">
+        <span className="font-medium text-stone-400">Backlog Candidate</span>
+        <span className="text-[#f59e0b] font-semibold">&lt; 2h Playtime</span>
       </div>
     </article>
   );

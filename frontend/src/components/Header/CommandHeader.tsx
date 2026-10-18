@@ -1,6 +1,5 @@
 import React from 'react';
-import { Database, RefreshCw, Gamepad2, Radio, Sparkles } from 'lucide-react';
-import { CornerBrackets } from '../Common/CornerBrackets';
+import { Database, RefreshCw, Gamepad2, Sparkles, BookOpen } from 'lucide-react';
 import { StatCard } from '../Common/StatCard';
 import { SyncSummaryResponse } from '../../types/steam';
 
@@ -27,38 +26,31 @@ export const CommandHeader: React.FC<CommandHeaderProps> = ({
   };
 
   return (
-    <header className="relative mb-8 bg-obsidian-950/70 border border-slate-800/80 rounded-sm p-4 sm:p-6 backdrop-blur-md shadow-2xl">
-      <CornerBrackets accentColor="text-neon-cyan/40" size="w-3.5 h-3.5" />
-
-      {/* Top Deck: Branding and Telemetry Status LED */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/60 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-neon-cyan/10 border border-neon-cyan/40 rounded shadow-glow-cyan">
-            <Gamepad2 className="w-6 h-6 text-neon-cyan" />
+    <header className="relative mb-8 bg-[#1c1917] border border-[#38312b] rounded-sm p-5 sm:p-7 shadow-tactile-card backdrop-blur-sm">
+      {/* Top Deck: Editorial Branding & Atelier Status */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-[#2e2823] mb-6">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 bg-[#24201d] border border-[#38312b] rounded-sm shadow-tactile-recessed text-[#fbbf24]">
+            <BookOpen className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-display font-bold text-2xl sm:text-3xl tracking-widest text-slate-100 uppercase">
-                SteamBacklog <span className="text-neon-cyan font-extrabold">// ORACLE</span>
-              </h1>
-              <span className="font-mono text-[9px] px-1.5 py-0.5 rounded bg-neon-cyan/15 text-neon-cyan border border-neon-cyan/30 uppercase tracking-widest">
-                v1.0.0
-              </span>
-            </div>
-            <p className="font-mono text-xs text-slate-400 tracking-wider">
-              TACTICAL BACKLOG TRIAGE & AI SYNTHESIS TERMINAL
+            <h1 className="font-serif font-bold text-2xl sm:text-3xl tracking-wide text-stone-100">
+              SteamBacklog <span className="text-[#f59e0b] italic font-normal">Oracle</span>
+            </h1>
+            <p className="font-sans text-xs text-stone-400 tracking-wide mt-0.5">
+              Tactile Backlog Curation & AI Consultation Atelier
             </p>
           </div>
         </div>
 
-        {/* Tactical Status LED Banner */}
-        <div className="flex items-center gap-3 px-3 py-1.5 bg-obsidian-900 border border-neon-emerald/30 rounded font-mono text-xs">
+        {/* Atelier Status Plaque */}
+        <div className="flex items-center gap-2.5 px-3.5 py-1.5 bg-[#24201d] border border-[#38312b] rounded-sm font-sans text-xs text-stone-300 shadow-tactile-recessed">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-emerald opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-emerald" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span className="text-neon-emerald tracking-widest uppercase font-semibold text-[11px] flex items-center gap-1.5">
-            <Radio className="w-3.5 h-3.5" /> SYSTEM OPERATIONAL // REST-AI ACTIVE
+          <span className="font-medium tracking-wide text-stone-300">
+            Library Archive Ready
           </span>
         </div>
       </div>
@@ -67,9 +59,9 @@ export const CommandHeader: React.FC<CommandHeaderProps> = ({
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Framed Steam ID Input Group */}
-          <div className="relative flex-1 flex rounded-sm border border-slate-700 bg-obsidian-900 focus-within:border-neon-cyan focus-within:shadow-glow-cyan transition-all">
-            <span className="inline-flex items-center px-3 font-mono text-xs text-neon-cyan/80 bg-obsidian-800/80 border-r border-slate-700 uppercase tracking-widest select-none">
-              STEAM_ID_64
+          <div className="relative flex-1 flex rounded-sm border border-[#38312b] bg-[#141210] focus-within:border-[#b45309] focus-within:ring-1 focus-within:ring-[#b45309]/40 shadow-tactile-recessed transition-all">
+            <span className="inline-flex items-center px-4 font-sans text-xs font-semibold text-stone-400 bg-[#1c1917] border-r border-[#38312b] select-none">
+              Steam ID
             </span>
             <input
               type="text"
@@ -78,28 +70,28 @@ export const CommandHeader: React.FC<CommandHeaderProps> = ({
               onChange={(e) => onSteamIdChange(e.target.value)}
               placeholder="e.g. 76561198000000000"
               aria-label="Steam ID 64"
-              className="w-full px-3.5 py-2.5 bg-transparent font-mono text-sm text-slate-100 placeholder-slate-500 focus:outline-none"
+              className="w-full px-4 py-2.5 bg-transparent font-sans text-sm text-stone-100 placeholder-stone-600 focus:outline-none"
             />
           </div>
 
-          {/* Gradient Beveled Action Button */}
+          {/* Physical Embossed Action Button */}
           <button
             type="submit"
             disabled={!steamId.trim() || isSyncing}
-            className={`relative group px-6 py-2.5 rounded-sm font-display font-bold uppercase tracking-widest text-sm transition-all duration-300 flex items-center justify-center gap-2 border ${
+            className={`relative px-7 py-2.5 rounded-sm font-sans font-bold tracking-wide text-sm transition-all duration-200 flex items-center justify-center gap-2 border ${
               isSyncing
-                ? 'bg-obsidian-800 border-slate-700 text-slate-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-neon-cyan/20 via-neon-indigo/30 to-neon-cyan/20 border-neon-cyan/60 text-neon-cyan hover:border-neon-cyan hover:shadow-glow-cyan hover:from-neon-cyan/30 hover:to-neon-indigo/40 active:scale-[0.98]'
+                ? 'bg-[#24201d] border-[#38312b] text-stone-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-[#8a1c14] via-[#b45309] to-[#c2410c] border-[#d97706]/40 text-stone-100 shadow-tactile-button hover:brightness-110 active:scale-[0.98]'
             }`}
           >
             {isSyncing ? (
               <>
-                <RefreshCw className="w-4 h-4 animate-spin text-neon-cyan" />
+                <RefreshCw className="w-4 h-4 animate-spin text-[#fbbf24]" />
                 <span>SYNCHRONIZING...</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 text-[#fbbf24]" />
                 <span>INITIALIZE SYNC</span>
               </>
             )}
@@ -107,27 +99,27 @@ export const CommandHeader: React.FC<CommandHeaderProps> = ({
         </div>
       </form>
 
-      {/* Bottom Deck: 3 Framed Telemetry Stat Modules */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* Bottom Deck: 3 Framed Tactile Stat Modules */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         <StatCard
-          label="TOTAL IMPORTED"
+          label="Total Imported"
           value={syncSummary?.totalImported ?? '---'}
           icon={Database}
           accent="amber"
           testId="stat-total-imported"
         />
         <StatCard
-          label="UPDATED"
+          label="Updated"
           value={syncSummary?.totalUpdated ?? '---'}
           icon={RefreshCw}
-          accent="indigo"
+          accent="gold"
           testId="stat-updated"
         />
         <StatCard
-          label="BACKLOG QUEUE"
+          label="Backlog Queue"
           value={syncSummary?.backlogCount ?? '---'}
           icon={Gamepad2}
-          accent="cyan"
+          accent="terracotta"
           testId="stat-backlog-queue"
         />
       </div>

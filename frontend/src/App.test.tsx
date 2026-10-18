@@ -74,8 +74,8 @@ describe('App Dashboard Integration', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/SteamBacklog/i);
-    expect(screen.getByText(/ORACLE SYNTHESIS MODULE/i)).toBeInTheDocument();
-    expect(screen.getByText(/AWAITING LIBRARY SYNCHRONIZATION/i)).toBeInTheDocument();
+    expect(screen.getByText(/Oracle Consultation Atelier/i)).toBeInTheDocument();
+    expect(screen.getByText(/Awaiting Library Synchronization/i)).toBeInTheDocument();
   });
 
   it('completes library sync flow, updating telemetry and displaying backlog game cards', async () => {
@@ -95,8 +95,8 @@ describe('App Dashboard Integration', () => {
 
     expect(await screen.findByText('Cyberpunk 2077')).toBeInTheDocument();
     expect(screen.getByText('Hades')).toBeInTheDocument();
-    expect(screen.getAllByText('UNTOUCHED').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('IN PROGRESS').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Untouched').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('In Progress').length).toBeGreaterThanOrEqual(1);
   });
 
   it('completes AI triage consultation flow, displaying persona dossier and recommendations', async () => {
@@ -125,7 +125,7 @@ describe('App Dashboard Integration', () => {
       expect(
         screen.getByText(/Immersion seeker eager for rich worldbuilding./i)
       ).toBeInTheDocument();
-      expect(screen.getByTestId('match-score-emblem')).toHaveTextContent('98% MATCH');
+      expect(screen.getByTestId('match-score-emblem')).toHaveTextContent(/98% Match/i);
       expect(
         screen.getByText(/Night City atmosphere fits your evening session perfectly./i)
       ).toBeInTheDocument();

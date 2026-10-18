@@ -19,14 +19,14 @@ describe('RecommendationCard Component', () => {
     render(<RecommendationCard recommendation={mockRecommendation} rank={1} />);
 
     expect(screen.getByText('Cyberpunk 2077')).toBeInTheDocument();
-    expect(screen.getByText(/APP_ID #1091500/i)).toBeInTheDocument();
-    expect(screen.getByTestId('match-score-emblem')).toHaveTextContent('96% MATCH');
+    expect(screen.getByText(/App #1091500/i)).toBeInTheDocument();
+    expect(screen.getByTestId('match-score-emblem')).toHaveTextContent(/96% Match/i);
   });
 
   it('renders session duration pill and tactical briefing box', () => {
     render(<RecommendationCard recommendation={mockRecommendation} rank={1} />);
 
-    expect(screen.getByTestId('session-duration-pill')).toHaveTextContent('EST. 60 MIN SESSION');
+    expect(screen.getByTestId('session-duration-pill')).toHaveTextContent(/60 min session/i);
     expect(screen.getByTestId('tactical-briefing-box')).toHaveTextContent(
       'Deep immersive story fits your evening mood.'
     );

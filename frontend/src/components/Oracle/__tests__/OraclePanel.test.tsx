@@ -41,7 +41,7 @@ describe('Oracle Components', () => {
         />
       );
 
-      expect(screen.getByText(/ORACLE SYNTHESIS MODULE/i)).toBeInTheDocument();
+      expect(screen.getByText(/Oracle Consultation Atelier/i)).toBeInTheDocument();
       expect(screen.getByText('Cozy & Low Energy')).toBeInTheDocument();
       expect(screen.getByText('Strategic Mastery')).toBeInTheDocument();
     });

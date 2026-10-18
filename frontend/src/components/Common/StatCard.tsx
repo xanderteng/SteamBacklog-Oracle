@@ -1,12 +1,11 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
-import { CornerBrackets } from './CornerBrackets';
 
 interface StatCardProps {
   label: string;
   value: number | string;
   icon: LucideIcon;
-  accent?: 'cyan' | 'indigo' | 'amber' | 'emerald';
+  accent?: 'amber' | 'crimson' | 'indigo' | 'cyan' | 'terracotta' | 'gold';
   testId?: string;
 }
 
@@ -14,60 +13,64 @@ export const StatCard: React.FC<StatCardProps> = ({
   label,
   value,
   icon: Icon,
-  accent = 'cyan',
+  accent = 'gold',
   testId,
 }) => {
   const accentStyles = {
-    cyan: {
-      border: 'border-neon-cyan/30 hover:border-neon-cyan/60',
-      text: 'text-neon-cyan',
-      glow: 'group-hover:shadow-glow-cyan',
-      iconBg: 'bg-neon-cyan/10 text-neon-cyan border-neon-cyan/30',
-      bracket: 'text-neon-cyan/60',
+    amber: {
+      border: 'border-[#38312b] hover:border-[#78350f]',
+      text: 'text-[#f59e0b]',
+      iconBg: 'bg-[#78350f]/20 text-[#fbbf24] border-[#78350f]/40',
+    },
+    gold: {
+      border: 'border-[#38312b] hover:border-[#b45309]',
+      text: 'text-[#fbbf24]',
+      iconBg: 'bg-[#b45309]/20 text-[#fcd34d] border-[#b45309]/40',
+    },
+    terracotta: {
+      border: 'border-[#38312b] hover:border-[#c2410c]',
+      text: 'text-[#fb923c]',
+      iconBg: 'bg-[#c2410c]/20 text-[#fdba74] border-[#c2410c]/40',
+    },
+    crimson: {
+      border: 'border-[#38312b] hover:border-[#991b1b]',
+      text: 'text-[#f87171]',
+      iconBg: 'bg-[#991b1b]/20 text-[#fca5a5] border-[#991b1b]/40',
     },
     indigo: {
-      border: 'border-neon-indigo/30 hover:border-neon-indigo/60',
-      text: 'text-neon-indigo',
-      glow: 'group-hover:shadow-glow-indigo',
-      iconBg: 'bg-neon-indigo/10 text-neon-indigo border-neon-indigo/30',
-      bracket: 'text-neon-indigo/60',
+      border: 'border-[#38312b] hover:border-[#635345]',
+      text: 'text-[#e7e5e4]',
+      iconBg: 'bg-[#29231e] text-[#d6d3d1] border-[#38312b]',
     },
-    amber: {
-      border: 'border-neon-amber/30 hover:border-neon-amber/60',
-      text: 'text-neon-amber',
-      glow: 'group-hover:shadow-glow-amber',
-      iconBg: 'bg-neon-amber/10 text-neon-amber border-neon-amber/30',
-      bracket: 'text-neon-amber/60',
+    cyan: {
+      border: 'border-[#38312b] hover:border-[#78350f]',
+      text: 'text-[#fcd34d]',
+      iconBg: 'bg-[#78350f]/20 text-[#fbbf24] border-[#78350f]/40',
     },
-    emerald: {
-      border: 'border-neon-emerald/30 hover:border-neon-emerald/60',
-      text: 'text-neon-emerald',
-      glow: 'group-hover:shadow-glow-emerald',
-      iconBg: 'bg-neon-emerald/10 text-neon-emerald border-neon-emerald/30',
-      bracket: 'text-neon-emerald/60',
-    },
-  }[accent];
+  }[accent] || {
+    border: 'border-[#38312b] hover:border-[#4a3e35]',
+    text: 'text-stone-100',
+    iconBg: 'bg-[#24201d] text-stone-300 border-[#38312b]',
+  };
 
   return (
     <div
       data-testid={testId || `stat-card-${label.toLowerCase().replace(/\s+/g, '-')}`}
-      className={`group relative p-3.5 bg-obsidian-850/80 border ${accentStyles.border} rounded-sm transition-all duration-300 backdrop-blur-sm ${accentStyles.glow}`}
+      className={`group relative p-4 bg-[#1c1917] border ${accentStyles.border} rounded-sm transition-all duration-300 shadow-tactile-card hover:-translate-y-0.5`}
     >
-      <CornerBrackets accentColor={accentStyles.bracket} />
-
       <div className="flex items-center justify-between gap-3">
         <div>
-          <span className="block font-mono text-[10px] tracking-widest text-slate-400 uppercase font-medium">
+          <span className="block font-sans text-xs tracking-wider text-stone-400 font-medium">
             {label}
           </span>
           <span
-            className={`block font-display font-bold text-2xl tracking-tight mt-0.5 ${accentStyles.text}`}
+            className={`block font-serif font-bold text-2xl tracking-tight mt-1 ${accentStyles.text}`}
           >
             {value}
           </span>
         </div>
 
-        <div className={`p-2 rounded border ${accentStyles.iconBg}`}>
+        <div className={`p-2.5 rounded-sm border ${accentStyles.iconBg}`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>

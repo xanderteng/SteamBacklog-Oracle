@@ -12,7 +12,7 @@ describe('CommandHeader Component', () => {
     backlogCount: 27,
   };
 
-  it('renders branding title and operational status LED banner', () => {
+  it('renders branding title and atelier status plaque', () => {
     render(
       <CommandHeader
         steamId="76561198000000000"
@@ -24,10 +24,10 @@ describe('CommandHeader Component', () => {
     );
 
     expect(screen.getByText(/SteamBacklog/i)).toBeInTheDocument();
-    expect(screen.getByText(/SYSTEM OPERATIONAL/i)).toBeInTheDocument();
+    expect(screen.getByText(/Library Archive Ready/i)).toBeInTheDocument();
   });
 
-  it('renders telemetry stat cards with values when syncSummary is provided', () => {
+  it('renders tactile metric cards with values when syncSummary is provided', () => {
     render(
       <CommandHeader
         steamId="76561198000000000"

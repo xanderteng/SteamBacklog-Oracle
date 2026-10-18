@@ -92,11 +92,11 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-obsidian-900 text-slate-100 font-sans selection:bg-neon-cyan/20 selection:text-neon-cyan">
-      {/* Multi-Layered Ambient Canvas (fixed behind content) */}
+    <div className="relative min-h-screen bg-[#11100f] text-stone-100 font-sans selection:bg-amber-900/40 selection:text-amber-200">
+      {/* Multi-Layered Textured Ambient Canvas (fixed behind content) */}
       <AmbientCanvas />
 
-      {/* Main HUD Cockpit Wrapper */}
+      {/* Main Collector Atelier Wrapper */}
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Diagnostic RFC-7807 Error Banner */}
         <ErrorBanner
@@ -104,7 +104,7 @@ export default function App() {
           onDismiss={() => setActiveError(null)}
         />
 
-        {/* Cockpit Command Header */}
+        {/* Collector Atelier Header */}
         <CommandHeader
           steamId={steamId}
           onSteamIdChange={setSteamId}
@@ -113,7 +113,7 @@ export default function App() {
           syncSummary={syncSummary}
         />
 
-        {/* AI Oracle Synthesis Module */}
+        {/* AI Oracle Consultation Atelier */}
         <OraclePanel
           onTriage={handleTriage}
           isTriaging={isTriaging}
@@ -128,14 +128,14 @@ export default function App() {
           hasSynced={hasSynced}
         />
 
-        {/* Cockpit Footer Trim */}
-        <footer className="mt-16 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-slate-500 gap-2">
+        {/* Atelier Footer */}
+        <footer className="mt-16 pt-8 border-t border-[#2e2823] flex flex-col sm:flex-row items-center justify-between text-xs font-sans text-stone-500 gap-3">
           <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-neon-cyan/60" />
-            <span>STEAMBACKLOG ORACLE // TACTICAL MIDIMALIST CLIENT</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-[#b45309]" />
+            <span className="text-stone-400">SteamBacklog Oracle: Tactile Collector's Atelier</span>
           </div>
-          <div className="text-right">
-            <span>SPRING BOOT 3.3.4 + REACT 18 + GEMINI 2.5 FLASH</span>
+          <div className="text-right text-stone-500">
+            <span>Curated Backlog Intelligence with Spring Boot & Gemini AI</span>
           </div>
         </footer>
       </main>

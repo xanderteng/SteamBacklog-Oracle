@@ -27,20 +27,19 @@ describe('Backlog Components', () => {
   };
 
   describe('GameCard', () => {
-    it('renders telemetry strip, title, and UNTOUCHED status badge for 0 playtime', () => {
+    it('renders clean app ID badge, title, and Untouched status pill for 0 playtime', () => {
       render(<GameCard game={mockGameUntouched} />);
 
-      expect(screen.getByText(/APP_ID/)).toBeInTheDocument();
-      expect(screen.getByText(/#1091500/)).toBeInTheDocument();
+      expect(screen.getByText('#1091500')).toBeInTheDocument();
       expect(screen.getByText('Cyberpunk 2077')).toBeInTheDocument();
-      expect(screen.getByText('UNTOUCHED')).toBeInTheDocument();
+      expect(screen.getByText('Untouched')).toBeInTheDocument();
       expect(screen.getByTestId('segmented-progress-bar')).toBeInTheDocument();
     });
 
-    it('renders IN PROGRESS status badge for positive playtime under 120 mins', () => {
+    it('renders In Progress status badge for positive playtime under 120 mins', () => {
       render(<GameCard game={mockGameInProgress} />);
 
-      expect(screen.getByText('IN PROGRESS')).toBeInTheDocument();
+      expect(screen.getByText('In Progress')).toBeInTheDocument();
       expect(screen.getByLabelText(/Playtime 60 of 120 minutes/i)).toBeInTheDocument();
     });
 
@@ -58,13 +57,13 @@ describe('Backlog Components', () => {
     it('renders loading state when isLoading is true', () => {
       render(<BacklogGrid games={[]} isLoading={true} hasSynced={false} />);
       expect(screen.getByTestId('backlog-loading')).toBeInTheDocument();
-      expect(screen.getByText(/SCANNING BACKLOG VAULT/i)).toBeInTheDocument();
+      expect(screen.getByText(/Scanning Backlog Vault/i)).toBeInTheDocument();
     });
 
     it('renders empty state prompt when no games are present', () => {
       render(<BacklogGrid games={[]} isLoading={false} hasSynced={false} />);
       expect(screen.getByTestId('backlog-empty')).toBeInTheDocument();
-      expect(screen.getByText(/AWAITING LIBRARY SYNCHRONIZATION/i)).toBeInTheDocument();
+      expect(screen.getByText(/Awaiting Library Synchronization/i)).toBeInTheDocument();
     });
 
     it('renders game cards and filters by search query', () => {
@@ -95,7 +94,7 @@ describe('Backlog Components', () => {
         />
       );
 
-      const untouchedFilter = screen.getByRole('button', { name: 'UNTOUCHED' });
+      const untouchedFilter = screen.getByRole('button', { name: /Untouched/i });
       fireEvent.click(untouchedFilter);
 
       expect(screen.getByText('Cyberpunk 2077')).toBeInTheDocument();

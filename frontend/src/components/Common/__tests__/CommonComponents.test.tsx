@@ -2,18 +2,10 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { AmbientCanvas } from '../AmbientCanvas';
-import { CornerBrackets } from '../CornerBrackets';
 import { ErrorBanner } from '../ErrorBanner';
 import { ProblemDetail } from '../../../types/steam';
 
 describe('Common Components', () => {
-  describe('CornerBrackets', () => {
-    it('renders corner bracket spans without crashing', () => {
-      const { container } = render(<CornerBrackets accentColor="text-neon-cyan" />);
-      const spans = container.querySelectorAll('span');
-      expect(spans.length).toBe(4);
-    });
-  });
 
   describe('AmbientCanvas', () => {
     it('renders ambient canvas container', () => {

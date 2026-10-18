@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Sparkles, Brain, Clock, Sliders, RefreshCw, Compass } from 'lucide-react';
+import { Sparkles, Compass, Clock, Sliders, RefreshCw, BookOpen } from 'lucide-react';
 import { TriageRequest, TriageResponse } from '../../types/steam';
-import { CornerBrackets } from '../Common/CornerBrackets';
 import { PersonaDossier } from './PersonaDossier';
 import { RecommendationCard } from './RecommendationCard';
 
@@ -45,33 +44,27 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
   return (
     <section
       data-testid="oracle-panel"
-      className="relative mb-12 p-5 sm:p-7 bg-obsidian-950/80 border-2 border-neon-cyan/40 rounded-sm shadow-glow-cyan/20 backdrop-blur-md"
+      className="relative mb-12 p-5 sm:p-7 bg-[#1c1917] border border-[#38312b] rounded-sm shadow-tactile-card backdrop-blur-sm"
     >
-      <CornerBrackets accentColor="text-neon-cyan" size="w-4 h-4" />
-
-      {/* Header Deck */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-6 border-b border-neon-cyan/20">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded bg-neon-cyan/15 border border-neon-cyan/40 text-neon-cyan shadow-glow-cyan">
-            <Brain className="w-6 h-6 animate-pulse" />
+      {/* Header Deck: Editorial Consultation Branding */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-5 mb-6 border-b border-[#2e2823]">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 rounded-sm bg-[#24201d] border border-[#38312b] text-[#fbbf24] shadow-tactile-recessed">
+            <BookOpen className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="font-display font-bold text-xl sm:text-2xl text-slate-100 tracking-wider uppercase">
-                ORACLE SYNTHESIS MODULE
-              </h2>
-              <span className="font-mono text-[9px] px-2 py-0.5 rounded bg-neon-indigo/20 text-neon-indigo border border-neon-indigo/30 uppercase tracking-widest font-semibold">
-                GEMINI 2.5 FLASH
-              </span>
-            </div>
-            <p className="font-mono text-xs text-slate-400">
-              AI-POWERED BACKLOG TRIAGE // CONTEXTUAL RECOMMENDATION ENGINE
+            <h2 className="font-serif font-bold text-xl sm:text-2xl text-stone-100 tracking-wide">
+              Oracle Consultation Atelier
+            </h2>
+            <p className="font-sans text-xs text-stone-400 mt-0.5">
+              Contextual AI backlog triage tailored to your available time and mood
             </p>
           </div>
         </div>
 
-        <div className="text-right hidden sm:block font-mono text-[10px] text-slate-500">
-          <span>COGNITIVE STATE: READY</span>
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#141210] border border-[#38312b] rounded-sm text-xs font-sans text-stone-400">
+          <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
+          <span>Curator Ready</span>
         </div>
       </div>
 
@@ -81,10 +74,10 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
         <div>
           <label
             htmlFor="moodInput"
-            className="block font-mono text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5"
+            className="block font-sans text-xs font-semibold text-stone-300 tracking-wide mb-2.5 flex items-center gap-2"
           >
-            <Compass className="w-3.5 h-3.5 text-neon-cyan" />
-            <span>PLAYER MOOD & SESSION INTENT</span>
+            <Compass className="w-4 h-4 text-[#f59e0b]" />
+            <span>Player Mood & Session Intent</span>
           </label>
 
           {/* Preset Chips */}
@@ -96,10 +89,10 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
                   key={preset}
                   type="button"
                   onClick={() => setMood(preset)}
-                  className={`px-3 py-1.5 rounded-sm font-mono text-xs tracking-wider transition-all duration-200 border ${
+                  className={`px-3.5 py-1.5 rounded-sm font-sans text-xs tracking-wide transition-all duration-200 border ${
                     isSelected
-                      ? 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan shadow-glow-cyan font-bold scale-[1.02]'
-                      : 'bg-obsidian-900 border-slate-700/80 text-slate-400 hover:text-slate-200 hover:border-slate-500'
+                      ? 'bg-[#24201d] text-[#fde68a] border-[#b45309] shadow-tactile-button font-bold scale-[1.02]'
+                      : 'bg-[#141210] border-[#38312b] text-stone-400 hover:text-stone-200 hover:border-[#4a3e35]'
                   }`}
                 >
                   {preset}
@@ -117,7 +110,7 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
               onChange={(e) => setMood(e.target.value)}
               placeholder="Or enter custom mood (e.g. Challenging rogue-lite with good soundtrack)..."
               aria-label="Player mood"
-              className="w-full px-4 py-2.5 bg-obsidian-900 border border-slate-700 rounded-sm font-mono text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-neon-cyan focus:shadow-glow-cyan transition-all"
+              className="w-full px-4 py-2.5 bg-[#141210] border border-[#38312b] rounded-sm font-sans text-sm text-stone-100 placeholder-stone-600 focus:outline-none focus:border-[#b45309] shadow-tactile-recessed transition-all"
             />
           </div>
         </div>
@@ -127,14 +120,14 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
           <div className="flex items-center justify-between mb-2">
             <label
               htmlFor="timeSlider"
-              className="font-mono text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5"
+              className="font-sans text-xs font-semibold text-stone-300 tracking-wide flex items-center gap-2"
             >
-              <Clock className="w-3.5 h-3.5 text-neon-cyan" />
-              <span>AVAILABLE SESSION DURATION</span>
+              <Clock className="w-4 h-4 text-[#f59e0b]" />
+              <span>Available Session Duration</span>
             </label>
             <span
               data-testid="duration-display"
-              className="font-mono font-bold text-sm text-neon-cyan px-2 py-0.5 bg-obsidian-900 border border-neon-cyan/30 rounded"
+              className="font-serif font-bold text-sm text-[#f59e0b] px-3 py-0.5 bg-[#141210] border border-[#38312b] rounded-sm shadow-tactile-recessed"
             >
               {availableMinutes} MINS
             </span>
@@ -150,18 +143,18 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
               value={availableMinutes}
               onChange={(e) => setAvailableMinutes(Number(e.target.value))}
               aria-label="Available session duration"
-              className="w-full h-2 bg-obsidian-900 rounded-lg appearance-none cursor-pointer accent-neon-cyan border border-slate-700"
+              className="w-full h-2 bg-[#141210] rounded-lg appearance-none cursor-pointer accent-[#b45309] border border-[#38312b]"
             />
 
             {/* Visual Tick Marks */}
-            <div className="flex justify-between px-1 mt-1.5 font-mono text-[10px] text-slate-500">
+            <div className="flex justify-between px-1 mt-1.5 font-sans text-[11px] text-stone-500">
               {TIME_TICKS.map((tick) => (
                 <button
                   key={tick}
                   type="button"
                   onClick={() => setAvailableMinutes(tick)}
-                  className={`hover:text-neon-cyan transition-colors ${
-                    availableMinutes === tick ? 'text-neon-cyan font-bold' : ''
+                  className={`hover:text-[#f59e0b] transition-colors ${
+                    availableMinutes === tick ? 'text-[#f59e0b] font-bold' : ''
                   }`}
                 >
                   {tick}m
@@ -172,21 +165,21 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
         </div>
 
         {/* Recommendation Count Selector & Submit Action */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-4 border-t border-slate-800">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-5 border-t border-[#2e2823]">
           <div className="flex items-center gap-3">
             <label
               htmlFor="recommendationsCount"
-              className="font-mono text-xs text-slate-400 uppercase tracking-wider flex items-center gap-1"
+              className="font-sans text-xs text-stone-400 tracking-wide flex items-center gap-1.5"
             >
-              <Sliders className="w-3.5 h-3.5 text-slate-500" />
-              <span>RECOMMENDATIONS LIMIT:</span>
+              <Sliders className="w-3.5 h-3.5 text-stone-500" />
+              <span>Recommendations Limit:</span>
             </label>
             <select
               id="recommendationsCount"
               value={maxRecommendations}
               onChange={(e) => setMaxRecommendations(Number(e.target.value))}
               aria-label="Recommendations limit"
-              className="px-3 py-1.5 bg-obsidian-900 border border-slate-700 rounded font-mono text-xs text-slate-200 focus:outline-none focus:border-neon-cyan"
+              className="px-3 py-1.5 bg-[#141210] border border-[#38312b] rounded-sm font-sans text-xs text-stone-200 focus:outline-none focus:border-[#b45309] shadow-tactile-recessed"
             >
               <option value="1">1 Game</option>
               <option value="2">2 Games</option>
@@ -199,20 +192,20 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
           <button
             type="submit"
             disabled={!mood.trim() || isTriaging || !hasBacklog}
-            className={`px-8 py-3 rounded-sm font-display font-bold uppercase tracking-widest text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 border ${
+            className={`px-8 py-3 rounded-sm font-sans font-bold tracking-wide text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-2.5 border ${
               isTriaging || !hasBacklog
-                ? 'bg-obsidian-900 border-slate-800 text-slate-500 cursor-not-allowed'
-                : 'bg-gradient-to-r from-neon-cyan/25 via-neon-indigo/35 to-neon-cyan/25 border-neon-cyan text-neon-cyan hover:border-neon-cyan hover:shadow-glow-cyan hover:from-neon-cyan/35 hover:to-neon-indigo/45 active:scale-[0.98]'
+                ? 'bg-[#24201d] border-[#38312b] text-stone-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-[#8a1c14] via-[#b45309] to-[#c2410c] border-[#d97706]/40 text-stone-100 shadow-tactile-button hover:brightness-110 active:scale-[0.98]'
             }`}
           >
             {isTriaging ? (
               <>
-                <RefreshCw className="w-5 h-5 animate-spin text-neon-cyan" />
+                <RefreshCw className="w-5 h-5 animate-spin text-[#fbbf24]" />
                 <span>CONSULTING GEMINI AI...</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-5 h-5 text-neon-cyan animate-bounce" />
+                <Sparkles className="w-5 h-5 text-[#fbbf24]" />
                 <span>CONSULT ORACLE</span>
               </>
             )}
@@ -220,7 +213,7 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
         </div>
 
         {!hasBacklog && (
-          <p className="font-mono text-xs text-neon-amber text-center">
+          <p className="font-sans text-xs text-[#f59e0b] text-center">
             * Please synchronize your Steam library first to enable AI triage consultation.
           </p>
         )}
@@ -228,14 +221,14 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
 
       {/* Synthesis Output: Dossier and Recommended Cards */}
       {triageResponse && (
-        <div data-testid="triage-results" className="mt-8 pt-8 border-t-2 border-neon-cyan/30">
-          <div className="mb-4">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-neon-cyan font-bold block mb-1">
-              TRIAGE DIRECTIVE // RESULTS
-            </span>
-            <h3 className="font-display font-bold text-2xl text-slate-100 tracking-wide uppercase">
-              RECOMMENDED BACKLOG CANDIDATES
+        <div data-testid="triage-results" className="mt-8 pt-8 border-t border-[#38312b]">
+          <div className="mb-5">
+            <h3 className="font-serif font-bold text-2xl text-stone-100 tracking-wide">
+              Recommended Backlog Candidates
             </h3>
+            <p className="font-sans text-xs text-stone-400 mt-1">
+              Curated selections tailored to your session criteria
+            </p>
           </div>
 
           {/* Synthesized Persona Dossier */}
