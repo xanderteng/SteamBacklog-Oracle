@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient;
 @Service
 public class GeminiClient {
 
-    private static final String MODEL_ENDPOINT = "/v1beta/models/gemini-2.5-flash:generateContent";
+    private static final String MODEL_ENDPOINT = "/v1beta/models/gemini-3.8-flash:generateContent";
 
     private final RestClient restClient;
     private final GeminiApiProperties properties;

@@ -5,7 +5,7 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/steambacklog
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5435/steambacklog}
     username: postgres
     password: postgrespassword
     driver-class-name: org.postgresql.Driver
