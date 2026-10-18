@@ -1,0 +1,103 @@
+package com.steambacklog.oracle.controller;
+
+import com.steambacklog.oracle.dto.response.SteamGameResponse;
+import com.steambacklog.oracle.dto.response.SyncSummaryResponse;
+import com.steambacklog.oracle.exception.GlobalExceptionHandler;
+import com.steambacklog.oracle.exception.InvalidSteamIdException;
+import com.steambacklog.oracle.exception.SteamApiException;
+import com.steambacklog.oracle.service.SteamSyncService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(SteamSyncController.class)
+@Import(GlobalExceptionHandler.class)
+class SteamSyncControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private SteamSyncService steamSyncService;
+
+    private static final String STEAM_ID = "76561198000000000";
+
+    @Test
+    void syncLibrary_Returns200WithSummary() throws Exception {
+        SyncSummaryResponse summary = new SyncSummaryResponse(STEAM_ID, 5, 2, 3);
+        when(steamSyncService.syncLibrary(STEAM_ID)).thenReturn(summary);
+
+        mockMvc.perform(post("/api/v1/steam/sync/{steamId}", STEAM_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.steamId").value(STEAM_ID))
+                .andExpect(jsonPath("$.totalImported").value(5))
+                .andExpect(jsonPath("$.totalUpdated").value(2))
+                .andExpect(jsonPath("$.backlogCount").value(3));
+    }
+
+    @Test
+    void getBacklog_Returns200WithGameList() throws Exception {
+        SteamGameResponse game = new SteamGameResponse(
+                1L,
+                STEAM_ID,
+                220L,
+                "Half-Life 2",
+                45,
+                "hash123",
+                true
+        );
+        when(steamSyncService.getBacklogGames(STEAM_ID)).thenReturn(List.of(game));
+
+        mockMvc.perform(get("/api/v1/steam/backlog/{steamId}", STEAM_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].steamId").value(STEAM_ID))
+                .andExpect(jsonPath("$[0].appId").value(220))
+                .andExpect(jsonPath("$[0].name").value("Half-Life 2"))
+                .andExpect(jsonPath("$[0].playtimeForeverMinutes").value(45))
+                .andExpect(jsonPath("$[0].imgIconUrl").value("hash123"))
+                .andExpect(jsonPath("$[0].isBacklog").value(true));
+    }
+
+    @Test
+    void syncLibrary_InvalidSteamId_Returns400ProblemDetail() throws Exception {
+        String invalidSteamId = "abc";
+        when(steamSyncService.syncLibrary(invalidSteamId))
+                .thenThrow(new InvalidSteamIdException("Steam ID must be numeric"));
+
+        mockMvc.perform(post("/api/v1/steam/sync/{steamId}", invalidSteamId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title").value("Invalid Steam ID"))
+                .andExpect(jsonPath("$.detail").value("Steam ID must be numeric"))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
+    void syncLibrary_SteamApiFailure_Returns502ProblemDetail() throws Exception {
+        when(steamSyncService.syncLibrary(STEAM_ID))
+                .thenThrow(new SteamApiException("Steam API error: 500", 502));
+
+        mockMvc.perform(post("/api/v1/steam/sync/{steamId}", STEAM_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.title").value("Steam API Error"))
+                .andExpect(jsonPath("$.detail").value("Steam API error: 500"))
+                .andExpect(jsonPath("$.status").value(502));
+    }
+}

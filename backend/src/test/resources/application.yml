@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: oracle-backend-test
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:steambacklog;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: postgres
+    password: postgrespassword
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+
+steam:
+  api:
+    base-url: https://api.steampowered.com
+    key: dummy-test-key
