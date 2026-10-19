@@ -48,7 +48,7 @@ This repository is an exploratory sandbox focused on learning and practical expe
 
 3. **AI Backlog Triage:**
    * Accepts user mood prompts, available session minutes, and max recommendations.
-   * Sends the unplayed catalog to Google Gemini (`gemini-3.8-flash`) to generate personalized recommendations with match scores and estimated completion sessions.
+   * Sends the unplayed catalog to Google Gemini (`gemini-3.5-flash-lite`) to generate personalized recommendations with match scores and estimated completion sessions.
 
 ---
 
