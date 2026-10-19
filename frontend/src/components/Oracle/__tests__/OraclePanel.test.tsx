@@ -73,10 +73,28 @@ describe('Oracle Components', () => {
         />
       );
 
-      const slider = screen.getByLabelText(/Available session duration/i);
+      const slider = screen.getByLabelText(/Available session duration/i) as HTMLInputElement;
+      expect(slider.min).toBe('15');
+      expect(slider.max).toBe('180');
       fireEvent.change(slider, { target: { value: '90' } });
 
       expect(screen.getByTestId('duration-display')).toHaveTextContent('90 MINS');
+    });
+
+    it('updates available minutes duration when clicking a tick mark', () => {
+      render(
+        <OraclePanel
+          onTriage={vi.fn()}
+          isTriaging={false}
+          triageResponse={null}
+          hasBacklog={true}
+        />
+      );
+
+      const tickButton = screen.getByRole('button', { name: '120 minutes' });
+      fireEvent.click(tickButton);
+
+      expect(screen.getByTestId('duration-display')).toHaveTextContent('120 MINS');
     });
 
     it('triggers onTriage with selected options on form submit', () => {

@@ -19,6 +19,9 @@ const MOOD_PRESETS = [
   'Strategic Mastery',
 ];
 
+const MIN_SESSION_MINUTES = 15;
+const MAX_SESSION_MINUTES = 180;
+const SESSION_STEP_MINUTES = 5;
 const TIME_TICKS = [15, 30, 45, 60, 90, 120, 180];
 
 export const OraclePanel: React.FC<OraclePanelProps> = ({
@@ -133,33 +136,51 @@ export const OraclePanel: React.FC<OraclePanelProps> = ({
             </span>
           </div>
 
-          <div className="relative pt-1 pb-3">
+          <div className="relative pt-1 pb-6">
             <input
               id="timeSlider"
               type="range"
-              min="5"
-              max="180"
-              step="5"
+              min={MIN_SESSION_MINUTES}
+              max={MAX_SESSION_MINUTES}
+              step={SESSION_STEP_MINUTES}
               value={availableMinutes}
               onChange={(e) => setAvailableMinutes(Number(e.target.value))}
               aria-label="Available session duration"
-              className="w-full h-2 bg-[#141210] rounded-lg appearance-none cursor-pointer accent-[#b45309] border border-[#38312b]"
+              className="w-full h-2 bg-[#141210] rounded-lg appearance-none cursor-pointer accent-[#b45309] border border-[#38312b] focus:outline-none focus:ring-1 focus:ring-[#f59e0b]/50 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#f59e0b] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#141210] [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(245,158,11,0.5)] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#f59e0b] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#141210] [&::-moz-range-thumb]:shadow-[0_0_8px_rgba(245,158,11,0.5)] [&::-moz-range-thumb]:cursor-pointer"
             />
 
-            {/* Visual Tick Marks */}
-            <div className="flex justify-between px-1 mt-1.5 font-sans text-[11px] text-stone-500">
-              {TIME_TICKS.map((tick) => (
-                <button
-                  key={tick}
-                  type="button"
-                  onClick={() => setAvailableMinutes(tick)}
-                  className={`hover:text-[#f59e0b] transition-colors ${
-                    availableMinutes === tick ? 'text-[#f59e0b] font-bold' : ''
-                  }`}
-                >
-                  {tick}m
-                </button>
-              ))}
+            {/* Mathematically Aligned Visual Tick Marks & Labels */}
+            <div className="relative w-full h-7 mt-1.5 pointer-events-none">
+              {TIME_TICKS.map((tick) => {
+                const fraction =
+                  (tick - MIN_SESSION_MINUTES) / (MAX_SESSION_MINUTES - MIN_SESSION_MINUTES);
+                const pct = fraction * 100;
+                const isSelected = availableMinutes === tick;
+
+                return (
+                  <button
+                    key={tick}
+                    type="button"
+                    onClick={() => setAvailableMinutes(tick)}
+                    aria-label={`${tick} minutes`}
+                    className="absolute -translate-x-1/2 flex flex-col items-center group cursor-pointer pointer-events-auto focus:outline-none"
+                    style={{ left: `calc(${pct}% + ${(0.5 - fraction) * 16}px)` }}
+                  >
+                    <div
+                      className={`w-0.5 h-1.5 rounded-full transition-colors ${
+                        isSelected ? 'bg-[#f59e0b]' : 'bg-[#4a3e35] group-hover:bg-[#f59e0b]'
+                      }`}
+                    />
+                    <span
+                      className={`mt-1 font-sans text-[11px] whitespace-nowrap transition-colors ${
+                        isSelected ? 'text-[#f59e0b] font-bold' : 'text-stone-500 group-hover:text-stone-300'
+                      }`}
+                    >
+                      {tick}m
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
