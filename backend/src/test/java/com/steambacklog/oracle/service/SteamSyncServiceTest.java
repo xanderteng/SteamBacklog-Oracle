@@ -207,4 +207,45 @@ class SteamSyncServiceTest {
         assertThrows(InvalidSteamIdException.class, () -> syncService.getBacklogGames("abc"));
         verifyNoInteractions(steamGameRepository);
     }
+
+    @Test
+    void syncLibrary_DeduplicatesIncomingGamesWithSameAppId() {
+        SteamGameDto game1 = new SteamGameDto(10L, "Counter-Strike", 0, "icon1");
+        SteamGameDto duplicate = new SteamGameDto(10L, "Counter-Strike Duplicate", 10, "icon1");
+        SteamOwnedGamesResponse apiResponse = new SteamOwnedGamesResponse(
+                new SteamResponseContainer(2, List.of(game1, duplicate))
+        );
+
+        when(steamApiClient.getOwnedGames(VALID_STEAM_ID)).thenReturn(apiResponse);
+        when(steamGameRepository.findBySteamId(VALID_STEAM_ID)).thenReturn(List.of());
+
+        SyncSummaryResponse summary = syncService.syncLibrary(VALID_STEAM_ID);
+
+        assertEquals(1, summary.totalImported());
+        verify(steamGameRepository).saveAll(gamesCaptor.capture());
+        assertEquals(1, gamesCaptor.getValue().size());
+        assertEquals(10L, gamesCaptor.getValue().get(0).getAppId());
+    }
+
+    @Test
+    void getSavedSteamIds_ReturnsDistinctIdsFromRepository() {
+        when(steamGameRepository.findDistinctSteamIds()).thenReturn(List.of(VALID_STEAM_ID));
+        List<String> result = syncService.getSavedSteamIds();
+        assertEquals(1, result.size());
+        assertEquals(VALID_STEAM_ID, result.get(0));
+    }
+
+    @Test
+    void getSavedSummary_ReturnsAccurateSummaryFromDatabase() {
+        SteamGame g1 = new SteamGame(VALID_STEAM_ID, 10L, "CS", 0, "ic1", true);
+        SteamGame g2 = new SteamGame(VALID_STEAM_ID, 20L, "TF2", 100, "ic2", false);
+        when(steamGameRepository.findBySteamId(VALID_STEAM_ID)).thenReturn(List.of(g1, g2));
+
+        SyncSummaryResponse summary = syncService.getSavedSummary(VALID_STEAM_ID);
+
+        assertEquals(VALID_STEAM_ID, summary.steamId());
+        assertEquals(2, summary.totalImported());
+        assertEquals(0, summary.totalUpdated());
+        assertEquals(1, summary.backlogCount());
+    }
 }

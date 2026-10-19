@@ -80,6 +80,29 @@ export const steamOracleApi = {
     return handleResponse<SteamGameResponse[]>(response);
   },
 
+  async getSavedUsers(): Promise<string[]> {
+    const url = `${getApiBaseUrl()}/users`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    return handleResponse<string[]>(response);
+  },
+
+  async getSavedSummary(steamId: string): Promise<SyncSummaryResponse> {
+    const trimmedId = steamId.trim();
+    const url = `${getApiBaseUrl()}/summary/${encodeURIComponent(trimmedId)}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    return handleResponse<SyncSummaryResponse>(response);
+  },
+
   async triageBacklog(
     steamId: string,
     request: TriageRequest

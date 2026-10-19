@@ -46,6 +46,10 @@ describe('Backlog Components', () => {
       expect(screen.getByTestId('segmented-progress-bar')).toBeInTheDocument();
       expect(screen.getByText(/0h/i)).toBeInTheDocument();
       expect(screen.getByText(/\/ 8h avg to beat/i)).toBeInTheDocument();
+      const link = screen.getByTestId('game-card-1091500');
+      expect(link).toHaveAttribute('href', 'https://store.steampowered.com/app/1091500');
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     });
 
     it('renders In Progress status badge, achievement pill, and dynamic progress', () => {

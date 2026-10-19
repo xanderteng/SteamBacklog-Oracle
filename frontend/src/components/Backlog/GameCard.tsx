@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, Gamepad2, Trophy } from 'lucide-react';
+import { Clock, ExternalLink, Gamepad2, Trophy } from 'lucide-react';
 import { SteamGameResponse } from '../../types/steam';
 
 interface GameCardProps {
@@ -27,9 +27,13 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const hasAchievements = (game.achievementsTotal ?? 0) > 0;
 
   return (
-    <article
+    <a
+      href={`https://store.steampowered.com/app/${game.appId}`}
+      target="_blank"
+      rel="noopener noreferrer"
       data-testid={`game-card-${game.appId}`}
-      className="group relative flex flex-col bg-[#1c1917] border border-[#38312b] hover:border-[#b45309] rounded-sm overflow-hidden transition-all duration-300 shadow-tactile-card hover:shadow-tactile-raised hover:-translate-y-1"
+      aria-label={`View ${game.name} on Steam Store`}
+      className="group relative flex flex-col bg-[#1c1917] border border-[#38312b] hover:border-[#b45309] rounded-sm overflow-hidden transition-all duration-300 shadow-tactile-card hover:shadow-tactile-raised hover:-translate-y-1 block text-inherit no-underline cursor-pointer"
     >
       {/* Full-Bleed Capsule Artwork with Gradient Melt into Card Body */}
       <div className="relative aspect-[460/215] w-full bg-[#141210] overflow-hidden">
@@ -142,13 +146,14 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
 
       {/* Embossed Stoneware Footer Plaque */}
       <div className="px-4 py-2 bg-[#171412] border-t border-[#2e2823] flex items-center justify-between text-[11px] font-sans text-stone-400">
-        <span className="font-medium text-stone-400">
-          Backlog Queue
+        <span className="font-medium text-stone-400 group-hover:text-[#f59e0b] flex items-center gap-1 transition-colors">
+          <span>Steam Store</span>
+          <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
         </span>
         <span className="text-[#f59e0b] font-semibold">
           {formatHours(Math.max(0, estimatedClearMinutes - game.playtimeForeverMinutes))} remaining
         </span>
       </div>
-    </article>
+    </a>
   );
 };

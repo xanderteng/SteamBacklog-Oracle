@@ -43,46 +43,56 @@ public class SteamSyncService {
     public SyncSummaryResponse syncLibrary(String steamId) {
         validateSteamId(steamId);
 
-        SteamOwnedGamesResponse apiResponse = steamApiClient.getOwnedGames(steamId);
-        List<SteamGameDto> incomingGames = apiResponse.response() != null && apiResponse.response().games() != null
-                ? apiResponse.response().games()
-                : List.of();
+        synchronized (steamId.intern()) {
+            SteamOwnedGamesResponse apiResponse = steamApiClient.getOwnedGames(steamId);
+            List<SteamGameDto> incomingGames = apiResponse.response() != null && apiResponse.response().games() != null
+                    ? apiResponse.response().games()
+                    : List.of();
 
-        List<SteamGame> existingGames = steamGameRepository.findBySteamId(steamId);
-        Map<Long, SteamGame> existingByAppId = existingGames.stream()
-                .collect(Collectors.toMap(SteamGame::getAppId, g -> g));
-
-        int totalImported = 0;
-        int totalUpdated = 0;
-        List<SteamGame> toSave = new ArrayList<>();
-
-        for (SteamGameDto incoming : incomingGames) {
-            long appId = incoming.appid();
-            String name = (incoming.name() != null && !incoming.name().isBlank())
-                    ? incoming.name()
-                    : "App " + appId;
-            int playtime = incoming.playtimeForever();
-
-            if (existingByAppId.containsKey(appId)) {
-                SteamGame existing = existingByAppId.get(appId);
-                existing.setName(name);
-                existing.setPlaytimeForeverMinutes(playtime);
-                existing.setImgIconUrl(incoming.imgIconUrl());
-                toSave.add(existing);
-                totalUpdated++;
-            } else {
-                SteamGame newGame = new SteamGame(
-                        steamId,
-                        appId,
-                        name,
-                        playtime,
-                        incoming.imgIconUrl(),
-                        true
-                );
-                toSave.add(newGame);
-                totalImported++;
+            // Deduplicate incoming games by AppID
+            Map<Long, SteamGameDto> uniqueIncoming = new java.util.LinkedHashMap<>();
+            for (SteamGameDto incoming : incomingGames) {
+                if (incoming.appid() > 0) {
+                    uniqueIncoming.put(incoming.appid(), incoming);
+                }
             }
-        }
+
+            List<SteamGame> existingGames = steamGameRepository.findBySteamId(steamId);
+            Map<Long, SteamGame> existingByAppId = existingGames.stream()
+                    .collect(Collectors.toMap(SteamGame::getAppId, g -> g, (first, second) -> first));
+
+            int totalImported = 0;
+            int totalUpdated = 0;
+            List<SteamGame> toSave = new ArrayList<>();
+
+            for (SteamGameDto incoming : uniqueIncoming.values()) {
+                long appId = incoming.appid();
+                String name = (incoming.name() != null && !incoming.name().isBlank())
+                        ? incoming.name()
+                        : "App " + appId;
+                int playtime = incoming.playtimeForever();
+
+                if (existingByAppId.containsKey(appId)) {
+                    SteamGame existing = existingByAppId.get(appId);
+                    existing.setName(name);
+                    existing.setPlaytimeForeverMinutes(playtime);
+                    existing.setImgIconUrl(incoming.imgIconUrl());
+                    toSave.add(existing);
+                    totalUpdated++;
+                } else {
+                    SteamGame newGame = new SteamGame(
+                            steamId,
+                            appId,
+                            name,
+                            playtime,
+                            incoming.imgIconUrl(),
+                            true
+                    );
+                    toSave.add(newGame);
+                    existingByAppId.put(appId, newGame);
+                    totalImported++;
+                }
+            }
 
         // 1. Resolve estimated clear times for new or unestimated games
         completionTimeEstimator.resolveEstimates(toSave);
@@ -121,6 +131,24 @@ public class SteamSyncService {
         }
 
         return new SyncSummaryResponse(steamId, totalImported, totalUpdated, backlogCount);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getSavedSteamIds() {
+        return steamGameRepository.findDistinctSteamIds();
+    }
+
+    @Transactional(readOnly = true)
+    public SyncSummaryResponse getSavedSummary(String steamId) {
+        validateSteamId(steamId);
+        List<SteamGame> games = steamGameRepository.findBySteamId(steamId);
+        if (games.isEmpty()) {
+            throw new com.steambacklog.oracle.exception.EmptyBacklogException("No saved games found for Steam ID: " + steamId);
+        }
+        int totalGames = games.size();
+        int backlogCount = (int) games.stream().filter(g -> Boolean.TRUE.equals(g.getIsBacklog())).count();
+        return new SyncSummaryResponse(steamId, totalGames, 0, backlogCount);
     }
 
     private void fetchAchievementsConcurrently(String steamId, List<SteamGame> games) {

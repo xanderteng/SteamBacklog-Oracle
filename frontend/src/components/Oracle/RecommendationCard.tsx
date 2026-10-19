@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, Gamepad2, Sparkles, Target, Trophy } from 'lucide-react';
+import { Clock, ExternalLink, Gamepad2, Sparkles, Target, Trophy } from 'lucide-react';
 import { GameRecommendationDto } from '../../types/steam';
 import { formatHours } from '../Backlog/GameCard';
 
@@ -24,9 +24,13 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const hasAchievements = (recommendation.achievementsTotal ?? 0) > 0;
 
   return (
-    <article
+    <a
+      href={`https://store.steampowered.com/app/${recommendation.appId}`}
+      target="_blank"
+      rel="noopener noreferrer"
       data-testid={`recommendation-card-${recommendation.appId}`}
-      className="group relative flex flex-col bg-[#24201d] border-2 border-[#b45309]/50 hover:border-[#d97706] rounded-sm overflow-hidden transition-all duration-300 shadow-tactile-card hover:shadow-tactile-raised hover:-translate-y-1"
+      aria-label={`View ${recommendation.name} on Steam Store`}
+      className="group relative flex flex-col bg-[#24201d] border-2 border-[#b45309]/50 hover:border-[#d97706] rounded-sm overflow-hidden transition-all duration-300 shadow-tactile-card hover:shadow-tactile-raised hover:-translate-y-1 block text-inherit no-underline cursor-pointer"
     >
       {/* Top Header Plaque */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-[#1c1917] border-b border-[#38312b] text-xs font-sans">
@@ -151,11 +155,14 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
       {/* Embossed Telemetry Footer */}
       <div className="px-4 py-2 bg-[#1c1917] border-t border-[#38312b] text-xs font-sans flex items-center justify-between text-stone-400">
-        <span>Curator's Recommendation</span>
+        <span className="flex items-center gap-1 group-hover:text-[#f59e0b] transition-colors">
+          <span>View on Steam</span>
+          <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+        </span>
         <span className="text-[#f59e0b] font-semibold">
           {formatHours(Math.max(0, estimatedClearMinutes - recommendation.playtimeForeverMinutes))} to clear
         </span>
       </div>
-    </article>
+    </a>
   );
 };

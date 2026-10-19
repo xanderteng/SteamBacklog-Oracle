@@ -10,6 +10,8 @@ vi.mock('./api/steamOracleApi', () => ({
     syncLibrary: vi.fn(),
     getBacklog: vi.fn(),
     triageBacklog: vi.fn(),
+    getSavedUsers: vi.fn().mockResolvedValue([]),
+    getSavedSummary: vi.fn(),
   },
   ProblemDetailError: class extends Error {
     problem: any;
@@ -24,6 +26,7 @@ vi.mock('./api/steamOracleApi', () => ({
 describe('App Dashboard Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(steamOracleApi.getSavedUsers).mockResolvedValue([]);
   });
 
   const mockSummary: SyncSummaryResponse = {
@@ -154,5 +157,31 @@ describe('App Dashboard Integration', () => {
         screen.getByText('The provided SteamID64 is invalid or malformed.')
       ).toBeInTheDocument();
     });
+  });
+
+  it('loads saved library directly from vault without triggering external sync', async () => {
+    vi.mocked(steamOracleApi.getSavedUsers).mockResolvedValue(['76561197960434622']);
+    vi.mocked(steamOracleApi.getSavedSummary).mockResolvedValue({
+      steamId: '76561197960434622',
+      totalImported: 1092,
+      totalUpdated: 0,
+      backlogCount: 957,
+    });
+    vi.mocked(steamOracleApi.getBacklog).mockResolvedValue(mockBacklog);
+
+    render(<App />);
+
+    // Click LOAD SAVED VAULT button
+    const loadVaultButton = await screen.findByRole('button', { name: /LOAD SAVED VAULT/i });
+    fireEvent.click(loadVaultButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('stat-total-imported')).toHaveTextContent('1092');
+      expect(screen.getByTestId('stat-backlog-queue')).toHaveTextContent('957');
+    });
+
+    expect(await screen.findByText('Cyberpunk 2077')).toBeInTheDocument();
+    // Verify syncLibrary was NEVER called
+    expect(steamOracleApi.syncLibrary).not.toHaveBeenCalled();
   });
 });

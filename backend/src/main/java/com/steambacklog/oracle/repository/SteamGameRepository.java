@@ -15,4 +15,11 @@ public interface SteamGameRepository extends JpaRepository<SteamGame, Long> {
     List<SteamGame> findBySteamIdAndIsBacklogTrue(String steamId);
 
     Optional<SteamGame> findBySteamIdAndAppId(String steamId, Long appId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT g.steamId FROM SteamGame g ORDER BY g.steamId")
+    List<String> findDistinctSteamIds();
+
+    long countBySteamId(String steamId);
+
+    long countBySteamIdAndIsBacklogTrue(String steamId);
 }

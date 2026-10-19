@@ -26,6 +26,10 @@ describe('RecommendationCard Component', () => {
     expect(screen.getByText('Cyberpunk 2077')).toBeInTheDocument();
     expect(screen.getByText(/App #1091500/i)).toBeInTheDocument();
     expect(screen.getByTestId('match-score-emblem')).toHaveTextContent(/96% Match/i);
+    const link = screen.getByTestId('recommendation-card-1091500');
+    expect(link).toHaveAttribute('href', 'https://store.steampowered.com/app/1091500');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('renders session duration pill, achievement telemetry, and dynamic progress', () => {

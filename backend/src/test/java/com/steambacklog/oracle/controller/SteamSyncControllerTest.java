@@ -110,4 +110,30 @@ class SteamSyncControllerTest {
                 .andExpect(jsonPath("$.detail").value("Steam API error: 500"))
                 .andExpect(jsonPath("$.status").value(502));
     }
+
+    @Test
+    void getSavedUsers_Returns200WithUserList() throws Exception {
+        when(steamSyncService.getSavedSteamIds()).thenReturn(List.of(STEAM_ID, "76561198000000001"));
+
+        mockMvc.perform(get("/api/v1/steam/users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0]").value(STEAM_ID))
+                .andExpect(jsonPath("$[1]").value("76561198000000001"));
+    }
+
+    @Test
+    void getSavedSummary_Returns200WithSummary() throws Exception {
+        SyncSummaryResponse summary = new SyncSummaryResponse(STEAM_ID, 42, 0, 35);
+        when(steamSyncService.getSavedSummary(STEAM_ID)).thenReturn(summary);
+
+        mockMvc.perform(get("/api/v1/steam/summary/{steamId}", STEAM_ID)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.steamId").value(STEAM_ID))
+                .andExpect(jsonPath("$.totalImported").value(42))
+                .andExpect(jsonPath("$.backlogCount").value(35));
+    }
 }

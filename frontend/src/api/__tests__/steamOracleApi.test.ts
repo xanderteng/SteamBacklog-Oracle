@@ -168,4 +168,43 @@ describe('steamOracleApi', () => {
       ).rejects.toThrow(ProblemDetailError);
     });
   });
+
+  describe('getSavedUsers', () => {
+    it('successfully retrieves list of saved steam IDs', async () => {
+      const mockUsers = ['76561198000000000', '76561197960434622'];
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockUsers,
+      } as unknown as Response);
+
+      const result = await steamOracleApi.getSavedUsers();
+      expect(result).toEqual(mockUsers);
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8080/api/v1/steam/users',
+        expect.objectContaining({ method: 'GET' })
+      );
+    });
+  });
+
+  describe('getSavedSummary', () => {
+    it('successfully retrieves saved library summary from database', async () => {
+      const mockSummary: SyncSummaryResponse = {
+        steamId: '76561197960434622',
+        totalImported: 1092,
+        totalUpdated: 0,
+        backlogCount: 957,
+      };
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockSummary,
+      } as unknown as Response);
+
+      const result = await steamOracleApi.getSavedSummary('76561197960434622');
+      expect(result).toEqual(mockSummary);
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:8080/api/v1/steam/summary/76561197960434622',
+        expect.objectContaining({ method: 'GET' })
+      );
+    });
+  });
 });

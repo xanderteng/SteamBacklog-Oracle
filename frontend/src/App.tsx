@@ -17,13 +17,61 @@ export default function App() {
   const [steamId, setSteamId] = useState('76561198000000000');
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoadingBacklog, setIsLoadingBacklog] = useState(false);
+  const [isLoadingSaved, setIsLoadingSaved] = useState(false);
   const [isTriaging, setIsTriaging] = useState(false);
   const [hasSynced, setHasSynced] = useState(false);
 
+  const [savedUsers, setSavedUsers] = useState<string[]>([]);
   const [syncSummary, setSyncSummary] = useState<SyncSummaryResponse | null>(null);
   const [backlogGames, setBacklogGames] = useState<SteamGameResponse[]>([]);
   const [triageResponse, setTriageResponse] = useState<TriageResponse | null>(null);
   const [activeError, setActiveError] = useState<ProblemDetail | null>(null);
+
+  React.useEffect(() => {
+    steamOracleApi
+      .getSavedUsers()
+      .then((users) => {
+        if (users && users.length > 0) {
+          setSavedUsers(users);
+          // If default steamId is not one of the saved ones, pick the latest saved one
+          setSteamId((prev) => (users.includes(prev) ? prev : users[users.length - 1]));
+        }
+      })
+      .catch(() => {
+        // Silently ignore if server is still starting
+      });
+  }, []);
+
+  const handleLoadSaved = async (targetSteamId?: string) => {
+    const idToLoad = (targetSteamId || steamId).trim();
+    if (!idToLoad) return;
+    setIsLoadingSaved(true);
+    setIsLoadingBacklog(true);
+    setActiveError(null);
+
+    try {
+      const [summary, games] = await Promise.all([
+        steamOracleApi.getSavedSummary(idToLoad),
+        steamOracleApi.getBacklog(idToLoad),
+      ]);
+      setSyncSummary(summary);
+      setBacklogGames(games);
+      setHasSynced(true);
+    } catch (err) {
+      if (err instanceof ProblemDetailError) {
+        setActiveError(err.problem);
+      } else {
+        setActiveError({
+          status: 404,
+          title: 'Vault Load Error',
+          detail: (err as Error).message || 'No saved games found for this Steam ID in the database.',
+        });
+      }
+    } finally {
+      setIsLoadingSaved(false);
+      setIsLoadingBacklog(false);
+    }
+  };
 
   const handleSync = async () => {
     if (!steamId.trim()) return;
@@ -34,6 +82,9 @@ export default function App() {
       const summary = await steamOracleApi.syncLibrary(steamId);
       setSyncSummary(summary);
       setHasSynced(true);
+
+      // Refresh saved users list
+      steamOracleApi.getSavedUsers().then(setSavedUsers).catch(() => {});
 
       // Refresh backlog
       setIsLoadingBacklog(true);
@@ -111,6 +162,9 @@ export default function App() {
           onSync={handleSync}
           isSyncing={isSyncing}
           syncSummary={syncSummary}
+          savedUsers={savedUsers}
+          onLoadSaved={handleLoadSaved}
+          isLoadingSaved={isLoadingSaved}
         />
 
         {/* AI Oracle Consultation Atelier */}
