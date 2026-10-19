@@ -36,18 +36,26 @@ class SteamGameEntityTest {
 
     @Test
     void testBacklogDefaultsOnCreate() {
-        SteamGame backlogGame = new SteamGame("76561198000000000", 100L, "Backlog Game", 90, "icon", null);
-        backlogGame.onCreate();
-        assertTrue(backlogGame.getIsBacklog());
-        assertNotNull(backlogGame.getCreatedAt());
-        assertNotNull(backlogGame.getUpdatedAt());
+        SteamGame untouchedGame = new SteamGame("76561198000000000", 100L, "Untouched Game", 0, "icon", null);
+        untouchedGame.onCreate();
+        assertTrue(untouchedGame.getIsBacklog());
+        assertEquals(CompletionStatus.UNTOUCHED, untouchedGame.getCompletionStatus());
+        assertNull(untouchedGame.getEstimatedClearMinutes());
+        assertEquals(0, untouchedGame.getAchievementsUnlocked());
+        assertEquals(0, untouchedGame.getAchievementsTotal());
+        assertEquals(0.0, untouchedGame.getAchievementPercentage());
+        assertNotNull(untouchedGame.getCreatedAt());
+        assertNotNull(untouchedGame.getUpdatedAt());
 
-        SteamGame playedGame = new SteamGame("76561198000000000", 200L, "Played Game", 150, "icon", null);
-        playedGame.onCreate();
-        assertFalse(playedGame.getIsBacklog());
+        SteamGame inProgressGame = new SteamGame("76561198000000000", 200L, "In Progress Game", 150, "icon", null);
+        inProgressGame.onCreate();
+        assertTrue(inProgressGame.getIsBacklog());
+        assertEquals(CompletionStatus.IN_PROGRESS, inProgressGame.getCompletionStatus());
 
-        SteamGame thresholdGame = new SteamGame("76561198000000000", 300L, "Threshold Game", 120, "icon", null);
-        thresholdGame.onCreate();
-        assertFalse(thresholdGame.getIsBacklog());
+        SteamGame completedGame = new SteamGame("76561198000000000", 300L, "Completed Game", 1200, "icon", false,
+                600, 10, 10, 100.0, CompletionStatus.COMPLETED);
+        completedGame.onCreate();
+        assertFalse(completedGame.getIsBacklog());
+        assertEquals(CompletionStatus.COMPLETED, completedGame.getCompletionStatus());
     }
 }

@@ -1,3 +1,5 @@
+export type CompletionStatus = 'UNTOUCHED' | 'IN_PROGRESS' | 'COMPLETED';
+
 export interface SteamGameResponse {
   id: number;
   steamId: string;
@@ -6,6 +8,11 @@ export interface SteamGameResponse {
   playtimeForeverMinutes: number;
   imgIconUrl: string | null;
   isBacklog: boolean;
+  estimatedClearMinutes?: number | null;
+  achievementsUnlocked?: number;
+  achievementsTotal?: number;
+  achievementPercentage?: number;
+  completionStatus?: CompletionStatus;
 }
 
 export interface SyncSummaryResponse {
@@ -29,6 +36,11 @@ export interface GameRecommendationDto {
   matchScore: number;
   whyPlayNow: string;
   estimatedSessionMinutes: number;
+  estimatedClearMinutes?: number | null;
+  achievementsUnlocked?: number;
+  achievementsTotal?: number;
+  achievementPercentage?: number;
+  completionStatus?: CompletionStatus;
 }
 
 export interface TriageResponse {

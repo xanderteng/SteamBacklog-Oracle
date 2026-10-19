@@ -45,6 +45,22 @@ public class SteamGame {
     @Column(name = "is_backlog", nullable = false)
     private Boolean isBacklog;
 
+    @Column(name = "estimated_clear_minutes")
+    private Integer estimatedClearMinutes;
+
+    @Column(name = "achievements_unlocked", nullable = false)
+    private Integer achievementsUnlocked = 0;
+
+    @Column(name = "achievements_total", nullable = false)
+    private Integer achievementsTotal = 0;
+
+    @Column(name = "achievement_percentage", nullable = false)
+    private Double achievementPercentage = 0.0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "completion_status", nullable = false, length = 32)
+    private CompletionStatus completionStatus = CompletionStatus.UNTOUCHED;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -56,8 +72,22 @@ public class SteamGame {
         Instant now = Instant.now();
         this.createdAt = now;
         this.updatedAt = now;
+        if (this.achievementsUnlocked == null) {
+            this.achievementsUnlocked = 0;
+        }
+        if (this.achievementsTotal == null) {
+            this.achievementsTotal = 0;
+        }
+        if (this.achievementPercentage == null) {
+            this.achievementPercentage = 0.0;
+        }
+        if (this.completionStatus == null) {
+            this.completionStatus = (this.playtimeForeverMinutes != null && this.playtimeForeverMinutes > 0)
+                    ? CompletionStatus.IN_PROGRESS
+                    : CompletionStatus.UNTOUCHED;
+        }
         if (this.isBacklog == null) {
-            this.isBacklog = (this.playtimeForeverMinutes == null || this.playtimeForeverMinutes < 120);
+            this.isBacklog = (this.completionStatus != CompletionStatus.COMPLETED);
         }
     }
 
@@ -73,5 +103,27 @@ public class SteamGame {
         this.playtimeForeverMinutes = playtimeForeverMinutes;
         this.imgIconUrl = imgIconUrl;
         this.isBacklog = isBacklog;
+        this.achievementsUnlocked = 0;
+        this.achievementsTotal = 0;
+        this.achievementPercentage = 0.0;
+        this.completionStatus = (playtimeForeverMinutes != null && playtimeForeverMinutes > 0)
+                ? CompletionStatus.IN_PROGRESS
+                : CompletionStatus.UNTOUCHED;
+    }
+
+    public SteamGame(String steamId, Long appId, String name, Integer playtimeForeverMinutes, String imgIconUrl,
+                     Boolean isBacklog, Integer estimatedClearMinutes, Integer achievementsUnlocked,
+                     Integer achievementsTotal, Double achievementPercentage, CompletionStatus completionStatus) {
+        this.steamId = steamId;
+        this.appId = appId;
+        this.name = name;
+        this.playtimeForeverMinutes = playtimeForeverMinutes;
+        this.imgIconUrl = imgIconUrl;
+        this.isBacklog = isBacklog;
+        this.estimatedClearMinutes = estimatedClearMinutes;
+        this.achievementsUnlocked = achievementsUnlocked != null ? achievementsUnlocked : 0;
+        this.achievementsTotal = achievementsTotal != null ? achievementsTotal : 0;
+        this.achievementPercentage = achievementPercentage != null ? achievementPercentage : 0.0;
+        this.completionStatus = completionStatus != null ? completionStatus : CompletionStatus.UNTOUCHED;
     }
 }

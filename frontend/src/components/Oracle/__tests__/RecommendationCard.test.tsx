@@ -13,6 +13,11 @@ describe('RecommendationCard Component', () => {
     matchScore: 96,
     whyPlayNow: 'Deep immersive story fits your evening mood.',
     estimatedSessionMinutes: 60,
+    estimatedClearMinutes: 1800,
+    achievementsUnlocked: 12,
+    achievementsTotal: 45,
+    achievementPercentage: 26.7,
+    completionStatus: 'IN_PROGRESS',
   };
 
   it('renders title, app ID, and match score emblem', () => {
@@ -23,13 +28,18 @@ describe('RecommendationCard Component', () => {
     expect(screen.getByTestId('match-score-emblem')).toHaveTextContent(/96% Match/i);
   });
 
-  it('renders session duration pill and tactical briefing box', () => {
+  it('renders session duration pill, achievement telemetry, and dynamic progress', () => {
     render(<RecommendationCard recommendation={mockRecommendation} rank={1} />);
 
     expect(screen.getByTestId('session-duration-pill')).toHaveTextContent(/60 min session/i);
     expect(screen.getByTestId('tactical-briefing-box')).toHaveTextContent(
       'Deep immersive story fits your evening mood.'
     );
+    expect(screen.getByTestId('recommendation-achievement-pill')).toHaveTextContent(
+      /12 \/ 45 Achievements • 27%/i
+    );
+    expect(screen.getByTestId('recommendation-progress-bar')).toBeInTheDocument();
+    expect(screen.getByText(/\/ 30h avg to beat/i)).toBeInTheDocument();
   });
 
   it('falls back to stylized placeholder graphic when capsule image fails', () => {

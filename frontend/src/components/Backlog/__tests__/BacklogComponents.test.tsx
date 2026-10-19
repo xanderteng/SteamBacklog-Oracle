@@ -14,6 +14,11 @@ describe('Backlog Components', () => {
     playtimeForeverMinutes: 0,
     imgIconUrl: 'cyberpunk.jpg',
     isBacklog: true,
+    estimatedClearMinutes: 480,
+    achievementsUnlocked: 0,
+    achievementsTotal: 0,
+    achievementPercentage: 0.0,
+    completionStatus: 'UNTOUCHED',
   };
 
   const mockGameInProgress: SteamGameResponse = {
@@ -24,6 +29,11 @@ describe('Backlog Components', () => {
     playtimeForeverMinutes: 60,
     imgIconUrl: 'hades.jpg',
     isBacklog: true,
+    estimatedClearMinutes: 600,
+    achievementsUnlocked: 10,
+    achievementsTotal: 40,
+    achievementPercentage: 25.0,
+    completionStatus: 'IN_PROGRESS',
   };
 
   describe('GameCard', () => {
@@ -34,13 +44,18 @@ describe('Backlog Components', () => {
       expect(screen.getByText('Cyberpunk 2077')).toBeInTheDocument();
       expect(screen.getByText('Untouched')).toBeInTheDocument();
       expect(screen.getByTestId('segmented-progress-bar')).toBeInTheDocument();
+      expect(screen.getByText(/0h/i)).toBeInTheDocument();
+      expect(screen.getByText(/\/ 8h avg to beat/i)).toBeInTheDocument();
     });
 
-    it('renders In Progress status badge for positive playtime under 120 mins', () => {
+    it('renders In Progress status badge, achievement pill, and dynamic progress', () => {
       render(<GameCard game={mockGameInProgress} />);
 
       expect(screen.getByText('In Progress')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Playtime 60 of 120 minutes/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Playtime 60 of 600 minutes/i)).toBeInTheDocument();
+      expect(screen.getByTestId('achievement-pill')).toHaveTextContent(/10 \/ 40 Achievements • 25%/i);
+      expect(screen.getByText(/1h/i)).toBeInTheDocument();
+      expect(screen.getByText(/\/ 10h avg to beat/i)).toBeInTheDocument();
     });
 
     it('displays fallback graphic when image fails to load', () => {

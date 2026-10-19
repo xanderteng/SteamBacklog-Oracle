@@ -46,8 +46,10 @@ class AiTriageServiceTest {
     @DisplayName("Should successfully triage backlog and enrich recommendations with authoritative entity metadata")
     void triageBacklog_success_returnsEnrichedRecommendations() {
         String steamId = "76561198000000001";
-        SteamGame game1 = new SteamGame(steamId, 1145360L, "Hades", 45, "hades_icon.jpg", true);
-        SteamGame game2 = new SteamGame(steamId, 367520L, "Hollow Knight", 30, "hk_icon.jpg", true);
+        SteamGame game1 = new SteamGame(steamId, 1145360L, "Hades", 45, "hades_icon.jpg", true,
+                1200, 10, 49, 20.4, com.steambacklog.oracle.entity.CompletionStatus.IN_PROGRESS);
+        SteamGame game2 = new SteamGame(steamId, 367520L, "Hollow Knight", 0, "hk_icon.jpg", true,
+                1800, 0, 0, 0.0, com.steambacklog.oracle.entity.CompletionStatus.UNTOUCHED);
 
         when(steamGameRepository.findBySteamIdAndIsBacklogTrue(steamId)).thenReturn(List.of(game1, game2));
 
@@ -82,6 +84,11 @@ class AiTriageServiceTest {
         assertThat(rec.matchScore()).isEqualTo(95);
         assertThat(rec.whyPlayNow()).contains("Fast-paced escape runs");
         assertThat(rec.estimatedSessionMinutes()).isEqualTo(45);
+        assertThat(rec.estimatedClearMinutes()).isEqualTo(1200);
+        assertThat(rec.achievementsUnlocked()).isEqualTo(10);
+        assertThat(rec.achievementsTotal()).isEqualTo(49);
+        assertThat(rec.achievementPercentage()).isEqualTo(20.4);
+        assertThat(rec.completionStatus()).isEqualTo(com.steambacklog.oracle.entity.CompletionStatus.IN_PROGRESS);
     }
 
     @Test

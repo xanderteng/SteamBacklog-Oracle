@@ -57,7 +57,12 @@ class SteamSyncControllerTest {
                 "Half-Life 2",
                 45,
                 "hash123",
-                true
+                true,
+                600,
+                5,
+                20,
+                25.0,
+                com.steambacklog.oracle.entity.CompletionStatus.IN_PROGRESS
         );
         when(steamSyncService.getBacklogGames(STEAM_ID)).thenReturn(List.of(game));
 
@@ -71,7 +76,12 @@ class SteamSyncControllerTest {
                 .andExpect(jsonPath("$[0].name").value("Half-Life 2"))
                 .andExpect(jsonPath("$[0].playtimeForeverMinutes").value(45))
                 .andExpect(jsonPath("$[0].imgIconUrl").value("hash123"))
-                .andExpect(jsonPath("$[0].isBacklog").value(true));
+                .andExpect(jsonPath("$[0].isBacklog").value(true))
+                .andExpect(jsonPath("$[0].estimatedClearMinutes").value(600))
+                .andExpect(jsonPath("$[0].achievementsUnlocked").value(5))
+                .andExpect(jsonPath("$[0].achievementsTotal").value(20))
+                .andExpect(jsonPath("$[0].achievementPercentage").value(25.0))
+                .andExpect(jsonPath("$[0].completionStatus").value("IN_PROGRESS"));
     }
 
     @Test

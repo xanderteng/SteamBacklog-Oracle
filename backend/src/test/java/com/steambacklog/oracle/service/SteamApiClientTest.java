@@ -92,4 +92,64 @@ class SteamApiClientTest {
 
         assertTrue(exception.getMessage().contains("Failed to communicate with Steam API"));
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void getPlayerAchievements_Success() {
+        var a1 = new com.steambacklog.oracle.dto.steam.SteamPlayerAchievementsResponse.AchievementItem("ACH_1", 1, 1000L);
+        var a2 = new com.steambacklog.oracle.dto.steam.SteamPlayerAchievementsResponse.AchievementItem("ACH_2", 0, 0L);
+        var stats = new com.steambacklog.oracle.dto.steam.SteamPlayerAchievementsResponse.PlayerStats(
+                "76561198000000000", "Game", List.of(a1, a2), true, null
+        );
+        var response = new com.steambacklog.oracle.dto.steam.SteamPlayerAchievementsResponse(stats);
+
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(Function.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.body(com.steambacklog.oracle.dto.steam.SteamPlayerAchievementsResponse.class)).thenReturn(response);
+
+        var result = steamApiClient.getPlayerAchievements("76561198000000000", 584400L);
+        assertNotNull(result);
+        assertEquals(1, result.unlocked());
+        assertEquals(2, result.total());
+        assertEquals(50.0, result.percentage());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void getPlayerAchievements_HttpError_ReturnsEmpty() {
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(Function.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenThrow(
+                org.springframework.web.client.HttpClientErrorException.create(
+                        org.springframework.http.HttpStatus.BAD_REQUEST, "No stats", org.springframework.http.HttpHeaders.EMPTY, new byte[0], null
+                )
+        );
+
+        var result = steamApiClient.getPlayerAchievements("76561198000000000", 999999L);
+        assertNotNull(result);
+        assertEquals(0, result.unlocked());
+        assertEquals(0, result.total());
+        assertEquals(0.0, result.percentage());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void getPlayerAchievements_NullOrEmptyAchievements_ReturnsEmpty() {
+        var stats = new com.steambacklog.oracle.dto.steam.SteamPlayerAchievementsResponse.PlayerStats(
+                "76561198000000000", "Game", null, true, null
+        );
+        var response = new com.steambacklog.oracle.dto.steam.SteamPlayerAchievementsResponse(stats);
+
+        when(restClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(any(Function.class))).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.body(com.steambacklog.oracle.dto.steam.SteamPlayerAchievementsResponse.class)).thenReturn(response);
+
+        var result = steamApiClient.getPlayerAchievements("76561198000000000", 584400L);
+        assertNotNull(result);
+        assertEquals(0, result.unlocked());
+        assertEquals(0, result.total());
+        assertEquals(0.0, result.percentage());
+    }
 }

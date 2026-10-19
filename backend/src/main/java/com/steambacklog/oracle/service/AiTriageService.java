@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.steambacklog.oracle.dto.triage.GameRecommendationDto;
 import com.steambacklog.oracle.dto.triage.TriageRequest;
 import com.steambacklog.oracle.dto.triage.TriageResponse;
+import com.steambacklog.oracle.entity.CompletionStatus;
 import com.steambacklog.oracle.entity.SteamGame;
 import com.steambacklog.oracle.exception.EmptyBacklogException;
 import com.steambacklog.oracle.exception.GeminiApiException;
@@ -65,7 +66,8 @@ public class AiTriageService {
     private String buildPrompt(TriageRequest request, List<SteamGame> candidates) {
         StringBuilder sb = new StringBuilder();
         sb.append("You are an expert video game backlog triage advisor.\n");
-        sb.append("Analyze the user's backlog games and recommend the best games to play right now based on their mood and available time.\n\n");
+        sb.append("Analyze the user's backlog games and recommend the best games to play right now based on their mood and available time.\n");
+        sb.append("You should recommend both untouched titles (for a fresh start) and unfinished in-progress games (where the player can make meaningful progress toward completion within their available session window).\n\n");
         sb.append("User Parameters:\n");
         sb.append("- Player Mood: ").append(request.mood()).append("\n");
         sb.append("- Available Time: ").append(request.availableMinutes()).append(" minutes\n");
@@ -73,9 +75,20 @@ public class AiTriageService {
         sb.append("Candidate Backlog Games (CRITICAL: You MUST choose ONLY from these games):\n");
 
         for (SteamGame game : candidates) {
+            int playtime = game.getPlaytimeForeverMinutes() != null ? game.getPlaytimeForeverMinutes() : 0;
+            int clearMinutes = game.getEstimatedClearMinutes() != null ? game.getEstimatedClearMinutes() : 600;
+            int remainingMinutes = Math.max(0, clearMinutes - playtime);
+            CompletionStatus status = game.getCompletionStatus() != null ? game.getCompletionStatus() : CompletionStatus.UNTOUCHED;
+            int achUnlocked = game.getAchievementsUnlocked() != null ? game.getAchievementsUnlocked() : 0;
+            int achTotal = game.getAchievementsTotal() != null ? game.getAchievementsTotal() : 0;
+            double achPct = game.getAchievementPercentage() != null ? game.getAchievementPercentage() : 0.0;
+
             sb.append("- AppID: ").append(game.getAppId())
                     .append(" | Title: ").append(game.getName())
-                    .append(" | Playtime So Far: ").append(game.getPlaytimeForeverMinutes() != null ? game.getPlaytimeForeverMinutes() : 0).append(" minutes\n");
+                    .append(" | Status: ").append(status)
+                    .append(" | Playtime: ").append(playtime).append("m")
+                    .append(" | Est Clear Time: ").append(clearMinutes).append("m (approx ").append(remainingMinutes).append("m remaining)")
+                    .append(" | Achievements: ").append(achUnlocked).append("/").append(achTotal).append(" (").append(achPct).append("%)\n");
         }
 
         sb.append("\nReturn a JSON object adhering exactly to this schema:\n");
@@ -127,7 +140,12 @@ public class AiTriageService {
                                         : "Great match for your current session.",
                                 item.estimatedSessionMinutes() != null && item.estimatedSessionMinutes() > 0
                                         ? item.estimatedSessionMinutes()
-                                        : request.availableMinutes()
+                                        : request.availableMinutes(),
+                                authoritativeGame.getEstimatedClearMinutes(),
+                                authoritativeGame.getAchievementsUnlocked(),
+                                authoritativeGame.getAchievementsTotal(),
+                                authoritativeGame.getAchievementPercentage(),
+                                authoritativeGame.getCompletionStatus()
                         );
                     })
                     .toList();

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Clock, Gamepad2, Sparkles, Target } from 'lucide-react';
+import { Clock, Gamepad2, Sparkles, Target, Trophy } from 'lucide-react';
 import { GameRecommendationDto } from '../../types/steam';
+import { formatHours } from '../Backlog/GameCard';
 
 interface RecommendationCardProps {
   recommendation: GameRecommendationDto;
@@ -14,6 +15,13 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
   const [imageError, setImageError] = useState(false);
 
   const capsuleUrl = `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${recommendation.appId}/header.jpg`;
+  const estimatedClearMinutes = recommendation.estimatedClearMinutes || 600;
+  const progressPercentage = Math.min(
+    100,
+    Math.round((recommendation.playtimeForeverMinutes / estimatedClearMinutes) * 100)
+  );
+
+  const hasAchievements = (recommendation.achievementsTotal ?? 0) > 0;
 
   return (
     <article
@@ -81,16 +89,48 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
         <div className="mb-4">
           <h3
             title={recommendation.name}
-            className="font-serif font-bold text-xl text-stone-100 group-hover:text-[#f59e0b] transition-colors tracking-wide mb-1"
+            className="font-serif font-bold text-xl text-stone-100 group-hover:text-[#f59e0b] transition-colors tracking-wide mb-2"
           >
             {recommendation.name}
           </h3>
 
-          <div className="flex items-center gap-2 font-sans text-xs text-stone-400">
-            <span>Playtime so far:</span>
-            <span className="text-[#f59e0b] font-semibold">
-              {recommendation.playtimeForeverMinutes} mins
-            </span>
+          {/* Achievement Telemetry Badge */}
+          {hasAchievements && (
+            <div
+              data-testid="recommendation-achievement-pill"
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#1c1917] border border-[#b45309]/50 text-[#fde68a] text-[11px] font-sans font-medium mb-3 shadow-tactile-recessed"
+            >
+              <Trophy className="w-3 h-3 text-[#f59e0b]" />
+              <span>
+                {recommendation.achievementsUnlocked ?? 0} / {recommendation.achievementsTotal} Achievements • {Math.round(recommendation.achievementPercentage ?? 0)}%
+              </span>
+            </div>
+          )}
+
+          {/* Dynamic Playtime Progress */}
+          <div className="mt-1">
+            <div className="flex items-center justify-between font-sans text-xs text-stone-400 mb-1">
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-stone-500" /> Playtime:
+              </span>
+              <span className="text-stone-200 font-semibold">
+                {formatHours(recommendation.playtimeForeverMinutes)}{' '}
+                <span className="text-stone-500 font-normal">
+                  / {formatHours(estimatedClearMinutes)} avg to beat ({progressPercentage}%)
+                </span>
+              </span>
+            </div>
+
+            <div
+              data-testid="recommendation-progress-bar"
+              aria-label={`Playtime ${recommendation.playtimeForeverMinutes} of ${estimatedClearMinutes} minutes`}
+              className="h-1.5 w-full bg-[#12100e] rounded-full border border-[#2e2823] overflow-hidden p-0.5 shadow-tactile-recessed"
+            >
+              <div
+                className="h-full bg-gradient-to-r from-[#d97706] to-[#f59e0b] rounded-full transition-all duration-500"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
           </div>
         </div>
 
@@ -112,7 +152,9 @@ export const RecommendationCard: React.FC<RecommendationCardProps> = ({
       {/* Embossed Telemetry Footer */}
       <div className="px-4 py-2 bg-[#1c1917] border-t border-[#38312b] text-xs font-sans flex items-center justify-between text-stone-400">
         <span>Curator's Recommendation</span>
-        <span className="text-[#f59e0b] font-semibold">Ready to Play</span>
+        <span className="text-[#f59e0b] font-semibold">
+          {formatHours(Math.max(0, estimatedClearMinutes - recommendation.playtimeForeverMinutes))} to clear
+        </span>
       </div>
     </article>
   );

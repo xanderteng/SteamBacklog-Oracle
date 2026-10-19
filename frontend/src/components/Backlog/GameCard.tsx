@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { Clock, Gamepad2 } from 'lucide-react';
+import { Clock, Gamepad2, Trophy } from 'lucide-react';
 import { SteamGameResponse } from '../../types/steam';
 
 interface GameCardProps {
   game: SteamGameResponse;
 }
+
+export const formatHours = (minutes: number): string => {
+  const hours = minutes / 60;
+  return hours % 1 === 0 ? `${hours}h` : `${hours.toFixed(1)}h`;
+};
 
 export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const [imageError, setImageError] = useState(false);
@@ -12,12 +17,14 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
   const isUntouched = game.playtimeForeverMinutes === 0;
   const capsuleUrl = `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${game.appId}/header.jpg`;
 
-  // Segmented progress bar (12 segments representing 10 mins each up to 120 threshold)
+  const estimatedClearMinutes = game.estimatedClearMinutes || 600;
   const segmentsCount = 12;
   const activeSegments = Math.min(
-    Math.ceil((game.playtimeForeverMinutes / 120) * segmentsCount),
+    Math.ceil((game.playtimeForeverMinutes / estimatedClearMinutes) * segmentsCount),
     segmentsCount
   );
+
+  const hasAchievements = (game.achievementsTotal ?? 0) > 0;
 
   return (
     <article
@@ -75,10 +82,23 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
         <div className="mb-3">
           <h3
             title={game.name}
-            className="font-serif font-bold text-lg text-stone-100 group-hover:text-[#f59e0b] transition-colors line-clamp-1 tracking-wide"
+            className="font-serif font-bold text-lg text-stone-100 group-hover:text-[#f59e0b] transition-colors line-clamp-1 tracking-wide mb-2"
           >
             {game.name}
           </h3>
+
+          {/* Achievement Telemetry Pill Badge */}
+          {hasAchievements && (
+            <div
+              data-testid="achievement-pill"
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#12100e] border border-[#b45309]/50 text-[#fde68a] text-[11px] font-sans font-medium shadow-tactile-recessed"
+            >
+              <Trophy className="w-3 h-3 text-[#f59e0b]" />
+              <span>
+                {game.achievementsUnlocked ?? 0} / {game.achievementsTotal} Achievements • {Math.round(game.achievementPercentage ?? 0)}%
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Playtime Progress & Physical Recessed Trough */}
@@ -88,14 +108,17 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
               <Clock className="w-3.5 h-3.5 text-stone-500" /> Playtime:
             </span>
             <span className="text-stone-200 font-semibold">
-              {game.playtimeForeverMinutes} <span className="text-stone-500 font-normal">/ 120m</span>
+              {formatHours(game.playtimeForeverMinutes)}{' '}
+              <span className="text-stone-500 font-normal">
+                / {formatHours(estimatedClearMinutes)} avg to beat
+              </span>
             </span>
           </div>
 
           {/* Physical Recessed Progress Trough */}
           <div
             data-testid="segmented-progress-bar"
-            aria-label={`Playtime ${game.playtimeForeverMinutes} of 120 minutes`}
+            aria-label={`Playtime ${game.playtimeForeverMinutes} of ${estimatedClearMinutes} minutes`}
             className="grid grid-cols-12 gap-0.5 h-2 w-full bg-[#12100e] p-0.5 rounded-full border border-[#2e2823] shadow-tactile-recessed"
           >
             {Array.from({ length: segmentsCount }).map((_, index) => {
@@ -119,8 +142,12 @@ export const GameCard: React.FC<GameCardProps> = ({ game }) => {
 
       {/* Embossed Stoneware Footer Plaque */}
       <div className="px-4 py-2 bg-[#171412] border-t border-[#2e2823] flex items-center justify-between text-[11px] font-sans text-stone-400">
-        <span className="font-medium text-stone-400">Backlog Candidate</span>
-        <span className="text-[#f59e0b] font-semibold">&lt; 2h Playtime</span>
+        <span className="font-medium text-stone-400">
+          Backlog Queue
+        </span>
+        <span className="text-[#f59e0b] font-semibold">
+          {formatHours(Math.max(0, estimatedClearMinutes - game.playtimeForeverMinutes))} remaining
+        </span>
       </div>
     </article>
   );
