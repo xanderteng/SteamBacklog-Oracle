@@ -12,25 +12,36 @@ import org.springframework.web.client.RestClient;
 @Service
 public class GeminiClient {
 
-    private static final String MODEL_ENDPOINT = "/v1beta/models/gemini-3.8-flash:generateContent";
+    private static final String MODEL_ENDPOINT = "/v1beta/models/gemini-3.5-flash-lite:generateContent";
 
     private final RestClient restClient;
     private final GeminiApiProperties properties;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    public GeminiClient(@Qualifier("geminiRestClient") RestClient geminiRestClient, GeminiApiProperties properties) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public GeminiClient(@Qualifier("geminiRestClient") RestClient geminiRestClient,
+                        GeminiApiProperties properties,
+                        com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
         this.restClient = geminiRestClient;
         this.properties = properties;
+        this.objectMapper = objectMapper != null ? objectMapper : new com.fasterxml.jackson.databind.ObjectMapper();
+    }
+
+    public GeminiClient(RestClient geminiRestClient, GeminiApiProperties properties) {
+        this(geminiRestClient, properties, new com.fasterxml.jackson.databind.ObjectMapper());
     }
 
     public String generateContent(String prompt) {
         try {
             GeminiGenerateRequest request = GeminiGenerateRequest.of(prompt, "application/json");
 
-            GeminiGenerateResponse response = restClient.post()
+            byte[] responseBytes = restClient.post()
                     .uri(uriBuilder -> uriBuilder
                             .path(MODEL_ENDPOINT)
                             .queryParam("key", properties.getKey())
                             .build())
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .accept(org.springframework.http.MediaType.ALL)
                     .body(request)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, (req, resp) -> {
@@ -39,7 +50,14 @@ public class GeminiClient {
                                 resp.getStatusCode().value()
                         );
                     })
-                    .body(GeminiGenerateResponse.class);
+                    .body(byte[].class);
+
+            if (responseBytes == null || responseBytes.length == 0) {
+                throw new GeminiApiException("Empty or missing content in Gemini response", 502);
+            }
+
+            String rawJson = new String(responseBytes, java.nio.charset.StandardCharsets.UTF_8);
+            GeminiGenerateResponse response = objectMapper.readValue(rawJson, GeminiGenerateResponse.class);
 
             if (response == null || response.getFirstText() == null) {
                 throw new GeminiApiException("Empty or missing content in Gemini response", 502);

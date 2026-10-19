@@ -27,21 +27,35 @@ public class CompletionTimeEstimator {
     }
 
     public void resolveEstimates(List<SteamGame> games) {
+        resolveEstimates(games, false);
+    }
+
+    public void resolveEstimates(List<SteamGame> games, boolean forceRefresh) {
         if (games == null || games.isEmpty()) {
             return;
         }
 
         List<SteamGame> uncached = games.stream()
-                .filter(g -> g.getEstimatedClearMinutes() == null || g.getEstimatedClearMinutes() <= 0)
+                .filter(g -> forceRefresh
+                        || g.getEstimatedClearMinutes() == null
+                        || g.getEstimatedClearMinutes() <= 0
+                        || g.getEstimatedClearMinutes() == DEFAULT_CLEAR_MINUTES)
                 .toList();
 
         if (uncached.isEmpty()) {
             return;
         }
 
-        // Process in batches of at most 50 games
-        int batchSize = 50;
+        // Process in batches of at most 100 games to avoid unnecessary multi-batch rate limiting
+        int batchSize = 100;
         for (int i = 0; i < uncached.size(); i += batchSize) {
+            if (i > 0) {
+                try {
+                    Thread.sleep(2500);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            }
             List<SteamGame> batch = uncached.subList(i, Math.min(i + batchSize, uncached.size()));
             resolveBatch(batch);
         }
@@ -62,6 +76,8 @@ public class CompletionTimeEstimator {
                     }
                 }
             }
+            log.info("Successfully resolved {} HowLongToBeat estimates via Gemini for batch of {} games",
+                    estimates.size(), batch.size());
         } catch (Exception e) {
             log.warn("Failed to resolve completion time estimates via Gemini, applying fallback of {} minutes: {}",
                     DEFAULT_CLEAR_MINUTES, e.getMessage());
@@ -71,7 +87,7 @@ public class CompletionTimeEstimator {
             Integer estimate = estimates.get(game.getAppId());
             if (estimate != null && estimate > 0) {
                 game.setEstimatedClearMinutes(estimate);
-            } else {
+            } else if (game.getEstimatedClearMinutes() == null || game.getEstimatedClearMinutes() <= 0) {
                 game.setEstimatedClearMinutes(DEFAULT_CLEAR_MINUTES);
             }
         }
@@ -79,17 +95,20 @@ public class CompletionTimeEstimator {
 
     private String buildPrompt(List<SteamGame> games) {
         StringBuilder sb = new StringBuilder();
-        sb.append("You are an expert video game completion time evaluator. Estimate the average HowLongToBeat (HLTB) ");
-        sb.append("Main Story completion time in minutes for each of the following Steam games.\n");
-        sb.append("Respond strictly with a JSON array of objects with fields \"appId\" (number) and \"estimatedClearMinutes\" (number, minimum 30).\n\n");
-        sb.append("Games to estimate:\n");
+        sb.append("You are an expert video game completion database evaluator with encyclopedic knowledge of HowLongToBeat (HLTB) metrics.\n");
+        sb.append("For each of the following Steam video games, provide the authentic HowLongToBeat (HLTB) Main Story average completion time in minutes.\n");
+        sb.append("Each game has a distinct, realistic completion time (for example: short games take 120-300m, medium story games take 600-900m, long RPGs take 1500-3000m). Provide the realistic playthrough time for each specific title.\n");
+        sb.append("Return strictly a JSON array of objects with fields:\n");
+        sb.append("- \"appId\": integer (exact AppID matching the game)\n");
+        sb.append("- \"estimatedClearMinutes\": integer (average HowLongToBeat Main Story clear time in minutes, minimum 30)\n\n");
+        sb.append("Games list:\n");
         for (SteamGame game : games) {
             sb.append("- AppID: ").append(game.getAppId())
-                    .append(" | Name: ").append(game.getName())
+                    .append(" | Title: ").append(game.getName())
                     .append("\n");
         }
-        sb.append("\nJSON array format:\n");
-        sb.append("[{\"appId\": 12345, \"estimatedClearMinutes\": 480}]\n");
+        sb.append("\nStrict JSON array format example:\n");
+        sb.append("[{\"appId\": 1057090, \"estimatedClearMinutes\": 900}]\n");
         return sb.toString();
     }
 

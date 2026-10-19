@@ -56,12 +56,30 @@ class GeminiClientTest {
         GeminiCandidate candidate = new GeminiCandidate(content, "STOP", 0);
         GeminiGenerateResponse response = new GeminiGenerateResponse(List.of(candidate));
 
+        String mockResponseBody = """
+                {
+                  "candidates": [
+                    {
+                      "content": {
+                        "parts": [
+                          {
+                            "text": "{\\"playerPersonaSummary\\":\\"Casual Gamer\\",\\"recommendations\\":[]}"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+                """;
+
         when(restClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(any(Function.class))).thenReturn(requestBodySpec);
+        when(requestBodySpec.contentType(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.accept(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(GeminiGenerateRequest.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
-        when(responseSpec.body(GeminiGenerateResponse.class)).thenReturn(response);
+        when(responseSpec.body(byte[].class)).thenReturn(mockResponseBody.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
         String result = geminiClient.generateContent("Test prompt");
 
@@ -74,10 +92,12 @@ class GeminiClientTest {
     void generateContent_EmptyResponse_ThrowsGeminiApiException() {
         when(restClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(any(Function.class))).thenReturn(requestBodySpec);
+        when(requestBodySpec.contentType(any())).thenReturn(requestBodySpec);
+        when(requestBodySpec.accept(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(GeminiGenerateRequest.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
-        when(responseSpec.body(GeminiGenerateResponse.class)).thenReturn(null);
+        when(responseSpec.body(byte[].class)).thenReturn(null);
 
         GeminiApiException ex = assertThrows(GeminiApiException.class, () ->
                 geminiClient.generateContent("Test prompt")
